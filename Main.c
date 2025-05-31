@@ -4,6 +4,7 @@
 #include <allegro5/allegro_primitives.h>
 #include "Player.h"
 
+#define GRAVITY 0.8
 void InputControl(ALLEGRO_EVENT event, struct Player* player)
 {
     if(event.keyboard.keycode == ALLEGRO_KEY_A)
@@ -36,10 +37,12 @@ int main()
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
     ALLEGRO_FONT* font = al_create_builtin_font();
 
+    int w, h, cameraX, cameraY;
+
     //Finding information about the screen
     al_get_monitor_info(0, &info);
-    int w = info.x2 - info.x1;
-    int h = info.y2 - info.y1;
+    w = info.x2 - info.x1;
+    h = info.y2 - info.y1;
     //Creating a screen with the correct display size
     ALLEGRO_DISPLAY* display = al_create_display(w, h);
 
@@ -53,8 +56,8 @@ int main()
     if(player == NULL)
         return 1;
 
-
-    char flag = 1;
+    cameraX = player->x - w/2;
+    cameraY = player->y - h/2;
 
     ALLEGRO_EVENT event;
     al_start_timer(timer);
@@ -69,12 +72,11 @@ int main()
             int size = player->side/2;
 
             al_clear_to_color(al_map_rgb(0, 0, 0));
-            al_draw_filled_rectangle(player->x - size, player->y - size, player->x + size, player->y + size, al_map_rgb(255, 0, 0));
+            al_draw_filled_rectangle(player->x - cameraX, player->y - cameraY, player->x + cameraX, player->y + cameraY, al_map_rgb(255, 0, 0));
+            al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 10, ALLEGRO_ALIGN_LEFT, "STATE: %d", player->state);
             for(struct Bullet* index = player->pistol->shots; index != NULL; index = index->next)
                 al_draw_filled_circle(index->x, index->y, 2, al_map_rgb(255, 0, 0)); 
 
-            if(player->pistol->timer)
-                player->pistol->timer--;
 
             al_flip_display();
         }

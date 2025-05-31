@@ -15,55 +15,134 @@ struct Player* PlayerCreate(unsigned char side, unsigned char face, unsigned sho
     newPlayer = malloc(sizeof(struct Player));
     newPlayer->side = side;
     newPlayer->face = face;
+    newPlayer->isOnGround = 1;
     newPlayer->x = x;
     newPlayer->y = y;
+    newPlayer->velocityY = 0;
+    newPlayer->jumpStrength = -10;
     newPlayer->maxX = maxX;
     newPlayer->maxY = maxY;
     newPlayer->hitbox = HitboxCreate(side, side, x, y);
     newPlayer->control = JoystickCreate();
     newPlayer->pistol = PistolCreate();
+    newPlayer->state = IDLE;
 
     return newPlayer;
 }
-void PlayerMove(struct Player* player, unsigned char steps, unsigned char trajectory, unsigned short maxX, unsigned short maxY)
+
+void EnterRunHandler(struct Player* player)
 {
-   if(trajectory == LEFT)
-   {
-        player->x = player->x - steps*PLAYER_STEP;
-   }
-   else if(trajectory == RIGHT)
-   {
-        player->x = player->x + steps*PLAYER_STEP;
-   }
-   else if(trajectory == UP)
-   {
-        player->y = player->y - steps*PLAYER_STEP;
-   }
+    //Can run animations or sound 
+    player->state = RUN;
+    EventRunHandler(player, RUN);
+}
+void EnterIdleHandler(struct Player* player)
+{
+    player->state = IDLE;
+}
+void EnterJumpHandler(struct Player* player)
+{
+    player->state = JUMP;
+    player->isOnGround = 0;
+    player->velocityY = player->jumpStrength;
+    EventJumpHandler(player, JUMP);
 }
 
+void EventJumpHandler(struct Player* player, enum State state)
+{
+    if(player->isOnGround)
+    {
+        EnterIdleHandler(player);
+        return;
+    }
+    if(player->control->left)
+        PlayerMove(player, 1, LEFT, X_SCREEN, Y_SCREEN);
+    
+    if(player->control->right)
+        PlayerMove(player, 1, RIGHT, X_SCREEN, Y_SCREEN);
+}
+void EventRunHandler(struct Player* player, enum State state)
+{
+    if(state == IDLE)
+    {
+        EnterIdleHandler(player);
+        return;
+    }
+    else if(state == JUMP)
+    {
+        EnterJumpHandler(player);
+        return;
+    }
+
+    if(player->control->left)
+        PlayerMove(player, 1, LEFT, X_SCREEN, Y_SCREEN);
+    
+    if(player->control->right)
+        PlayerMove(player, 1, RIGHT, X_SCREEN, Y_SCREEN);
+
+}
+void EventIdleHandler(struct Player* player, enum State state)
+{
+    if(state == RUN)
+        EnterRunHandler(player);
+
+    else if(state == JUMP)
+        EnterJumpHandler(player);
+}
+
+void PlayerMove(struct Player* player, unsigned char steps, unsigned char trajectory, unsigned short maxX, unsigned short maxY)
+{
+    if(trajectory == LEFT)
+         player->x = player->x - steps*PLAYER_STEP;
+
+    else if(trajectory == RIGHT)
+         player->x = player->x + steps*PLAYER_STEP;
+}
+
+void PlayerUpdateState(struct Player* player, enum State newState)
+{
+    if(player->state == IDLE)
+        EventIdleHandler(player, newState);
+
+    if(player->state == RUN)
+        EventRunHandler(player, newState);
+
+    if(player->state == JUMP)
+        EventJumpHandler(player, newState);
+}
 void PlayerUpdate(struct Player* player)
 {
-    if(player->control->left)
+    enum State newState = IDLE;
+    
+    player->y += player->velocityY;
+    if(!player->isOnGround)
+        player->velocityY += GRAVITY;
+
+    if(player->y >= player->maxX/2)
     {
-        PlayerMove(player, 1, LEFT, X_SCREEN, Y_SCREEN);
+        player->y = player->maxX/2;
+        player->velocityY = 0;
+        player->isOnGround = 1;
     }
-    if(player->control->right)
+
+    if(player->control->left || player->control->right)
+        newState = RUN;
+
+    if(player->control->jump)
+        newState = JUMP;
+    
+    PlayerUpdateState(player, newState);
+
+    if(player->control->fire && player->pistol->timer == 0)
     {
-        PlayerMove(player, 1, RIGHT, X_SCREEN, Y_SCREEN);
+        PlayerShot(player);
+        player->pistol->timer = PISTOL_COOLDOWN;
     }
-   if(player->control->fire)
-   {
-        if(player->pistol->timer == 0)
-        {
-            PlayerShot(player);
-            player->pistol->timer = PISTOL_COOLDOWN;
-        }
-   }
-   if(player->control->jump)
-   {
-        PlayerMove(player, 1, UP, X_SCREEN, Y_SCREEN);
-   }
-   BulletUpdate(player);
+
+    BulletUpdate(player);
+
+    if(player->pistol->timer)
+        player->pistol->timer--;
 }
 
 void PlayerDestroy(struct Player* player)
