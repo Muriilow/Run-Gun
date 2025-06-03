@@ -13,35 +13,31 @@ struct Joystick* JoystickCreate()
     return element;
 }
 
-struct Joystick* JoystickDestroy(struct Joystick* joystick)
+void JoystickActivate(struct Joystick* joystick, int button)
+{
+    switch(button)
+    {
+        case UP:
+            joystick->up = joystick->up ^ 1;
+            break;
+        case LEFT:
+            joystick->left = joystick->left ^ 1;
+            break;
+        case RIGHT:
+            joystick->right = joystick->right ^ 1;
+            break;
+        case DOWN:
+            joystick->down = joystick->down ^ 1;
+            break;
+        case FIRE:
+            joystick->fire = joystick->fire ^ 1;
+            break;
+        case JUMP:
+            joystick->jump = joystick->jump ^ 1;
+            break;
+    }
+}
+void JoystickDestroy(struct Joystick* joystick)
 {
     free(joystick);
-}
-
-struct Joystick* JoystickLeft(struct Joystick* joystick)
-{
-    joystick->left = joystick->left ^ 1;
-}
-
-struct Joystick* JoystickRight(struct Joystick* joystick)
-{
-    joystick->right = joystick->right ^ 1;
-}
-
-struct Joystick* JoystickDown(struct Joystick* joystick) 
-{
-    joystick->down = joystick->down ^ 1;
-}
-
-struct Joystick* JoystickUp(struct Joystick* joystick) 
-{
-    joystick->up = joystick->up ^ 1;
-}
-struct Joystick* JoystickFire(struct Joystick* joystick) 
-{
-    joystick->fire = joystick->fire ^ 1;
-}
-struct Joystick* JoystickJump(struct Joystick* joystick) 
-{
-    joystick->jump = joystick->jump ^ 1;
 }

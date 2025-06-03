@@ -1,10 +1,6 @@
 #include <stdlib.h>
 #include "Player.h"
 
-#define X_SCREEN 320 
-#define Y_SCREEN 320
-#define LEFT 0 
-#define RIGHT 1
 struct Player* PlayerCreate(unsigned char side, unsigned char face, unsigned short x, unsigned short y, unsigned short maxX, unsigned short maxY)
 {
     struct Player* newPlayer;
@@ -13,9 +9,15 @@ struct Player* PlayerCreate(unsigned char side, unsigned char face, unsigned sho
         return NULL;
 
     newPlayer = malloc(sizeof(struct Player));
+
+    if(newPlayer == NULL)
+        exit(EXIT_FAILURE);
+
     newPlayer->side = side;
     newPlayer->face = face;
     newPlayer->isOnGround = 1;
+    newPlayer->isRight = 0;
+    newPlayer->isLeft = 0;
     newPlayer->x = x;
     newPlayer->y = y;
     newPlayer->velocityY = 0;
@@ -42,13 +44,13 @@ void EnterIdleHandler(struct Player* player)
 }
 void EnterJumpHandler(struct Player* player)
 {
-    player->state = JUMP;
+    player->state = JUMPING;
     player->isOnGround = 0;
     player->velocityY = player->jumpStrength;
-    EventJumpHandler(player, JUMP);
+    EventJumpHandler(player);
 }
 
-void EventJumpHandler(struct Player* player, enum State state)
+void EventJumpHandler(struct Player* player)
 {
     if(player->isOnGround)
     {
@@ -56,10 +58,10 @@ void EventJumpHandler(struct Player* player, enum State state)
         return;
     }
     if(player->control->left)
-        PlayerMove(player, 1, LEFT, X_SCREEN, Y_SCREEN);
+        PlayerMove(player, 1, LEFT);
     
     if(player->control->right)
-        PlayerMove(player, 1, RIGHT, X_SCREEN, Y_SCREEN);
+        PlayerMove(player, 1, RIGHT);
 }
 void EventRunHandler(struct Player* player, enum State state)
 {
@@ -68,17 +70,17 @@ void EventRunHandler(struct Player* player, enum State state)
         EnterIdleHandler(player);
         return;
     }
-    else if(state == JUMP)
+    else if(state == JUMPING)
     {
         EnterJumpHandler(player);
         return;
     }
 
     if(player->control->left)
-        PlayerMove(player, 1, LEFT, X_SCREEN, Y_SCREEN);
+        PlayerMove(player, 1, LEFT);
     
     if(player->control->right)
-        PlayerMove(player, 1, RIGHT, X_SCREEN, Y_SCREEN);
+        PlayerMove(player, 1, RIGHT);
 
 }
 void EventIdleHandler(struct Player* player, enum State state)
@@ -86,17 +88,38 @@ void EventIdleHandler(struct Player* player, enum State state)
     if(state == RUN)
         EnterRunHandler(player);
 
-    else if(state == JUMP)
+    else if(state == JUMPING)
         EnterJumpHandler(player);
 }
 
-void PlayerMove(struct Player* player, unsigned char steps, unsigned char trajectory, unsigned short maxX, unsigned short maxY)
+void PlayerMove(struct Player* player, unsigned char steps, unsigned char trajectory)
 {
+    int leftZone = 200;
+    int rightZone = player->maxX - 200;
+
     if(trajectory == LEFT)
-         player->x = player->x - steps*PLAYER_STEP;
+    {
+        player->x -= steps*PLAYER_STEP;
+        if(!(player->x >= leftZone && player->x <= rightZone))
+        {
+            player->isLeft = 1;
+            player->x += steps*PLAYER_STEP;
+        }
+        else
+            player->isRight = 0;
+    }
 
     else if(trajectory == RIGHT)
-         player->x = player->x + steps*PLAYER_STEP;
+    {
+        player->x += steps*PLAYER_STEP;
+        if(!(player->x >= leftZone && player->x <= rightZone))
+        {
+            player->isRight = 1;
+            player->x -= steps*PLAYER_STEP;
+        }
+        else
+            player->isLeft = 0;
+    }
 }
 
 void PlayerUpdateState(struct Player* player, enum State newState)
@@ -107,8 +130,8 @@ void PlayerUpdateState(struct Player* player, enum State newState)
     if(player->state == RUN)
         EventRunHandler(player, newState);
 
-    if(player->state == JUMP)
-        EventJumpHandler(player, newState);
+    if(player->state == JUMPING)
+        EventJumpHandler(player);
 }
 void PlayerUpdate(struct Player* player)
 {
@@ -129,7 +152,7 @@ void PlayerUpdate(struct Player* player)
         newState = RUN;
 
     if(player->control->jump)
-        newState = JUMP;
+        newState = JUMPING;
     
     PlayerUpdateState(player, newState);
 

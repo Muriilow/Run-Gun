@@ -1,6 +1,13 @@
 #ifndef __JOYSTICK__
 #define __JOYSTICK__
 
+#define LEFT 0
+#define RIGHT 1
+#define UP 2
+#define DOWN 3
+#define FIRE 4
+#define JUMP 5
+
 struct Joystick
 {
     unsigned char right;
@@ -12,13 +19,7 @@ struct Joystick
 };
 
 struct Joystick* JoystickCreate();  
-struct Joystick* JoystickDestroy(struct Joystick* joystick);
-
-struct Joystick* JoystickLeft(struct Joystick* joystick);  
-struct Joystick* JoystickRight(struct Joystick* joystick);  
-struct Joystick* JoystickDown(struct Joystick* joystick);  
-struct Joystick* JoystickUp(struct Joystick* joystick);  
-struct Joystick* JoystickFire(struct Joystick* joystick);  
-struct Joystick* JoystickJump(struct Joystick* joystick);  
+void JoystickDestroy(struct Joystick* joystick);
+void JoystickActivate(struct Joystick* joystick, int button);
 
 #endif
