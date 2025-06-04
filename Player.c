@@ -94,15 +94,17 @@ void EventIdleHandler(struct Player* player, enum State state)
 
 void PlayerMove(struct Player* player, unsigned char steps, unsigned char trajectory)
 {
-    int leftZone = 200;
-    int rightZone = player->maxX - 200;
+    int leftZone = 300;
+    int rightZone = player->maxX - 300;
 
     if(trajectory == LEFT)
     {
+        player->hitbox->x -= steps*PLAYER_STEP;
         player->x -= steps*PLAYER_STEP;
         if(!(player->x >= leftZone && player->x <= rightZone))
         {
             player->isLeft = 1;
+            player->hitbox->x += steps*PLAYER_STEP;
             player->x += steps*PLAYER_STEP;
         }
         else
@@ -111,10 +113,12 @@ void PlayerMove(struct Player* player, unsigned char steps, unsigned char trajec
 
     else if(trajectory == RIGHT)
     {
+        player->hitbox->x += steps*PLAYER_STEP;
         player->x += steps*PLAYER_STEP;
         if(!(player->x >= leftZone && player->x <= rightZone))
         {
             player->isRight = 1;
+            player->hitbox->x -= steps*PLAYER_STEP;
             player->x -= steps*PLAYER_STEP;
         }
         else

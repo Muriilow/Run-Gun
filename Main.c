@@ -29,7 +29,11 @@ void InputControl(ALLEGRO_EVENT event, struct Player* player)
             break;
     }
 }
-
+void BackgroundUpdate(ALLEGRO_BITMAP* bg, int width, int xAxis)
+{
+    al_draw_bitmap(bg, xAxis, 0, 0);
+    al_draw_bitmap(bg, xAxis + width, 0, 0);
+}
 int main()
 {
     al_init();
@@ -44,7 +48,7 @@ int main()
     ALLEGRO_FONT* font; 
     ALLEGRO_EVENT event;
     struct Player* player;
-    int screenW, screenH, imgW, imgH, newW, posX, bgOffset;
+    int screenW, screenH, imgW, imgH, newW, posX, bgOffset, size;
     float scale;
 
 
@@ -73,9 +77,12 @@ int main()
     al_register_event_source(queue, al_get_timer_event_source(timer));
 
     //Creating players
-    player = PlayerCreate(20, RIGHT, 201, screenW/2, screenW, screenH);
+    player = PlayerCreate(20, RIGHT, 301, screenW/2, screenW, screenH);
 
     al_start_timer(timer);
+
+    size = player->side/2;
+    int xAxis = 0;
 
     while(1)
     {
@@ -84,23 +91,31 @@ int main()
         //Clock event
         if(event.type == ALLEGRO_EVENT_TIMER)
         {
+            xAxis--; 
+
+            if (xAxis <= -imgW)
+                xAxis = 0;
+
+            BackgroundUpdate(background, imgW, xAxis);
             PlayerUpdate(player);
-            int size = player->side/2;
 
-
-            if(player->isRight)
+            if(player->isRight && player->control->right)
                 bgOffset -= 2;
-            if(player->isLeft)
+            if(player->isLeft && player->control->left)
                 bgOffset += 2;
 
-            al_draw_bitmap(background, bgOffset, 0, 0);
-            al_draw_filled_rectangle(player->x - size, player->y - size,
-                player->x + size, player->y + size, al_map_rgb(255, 0, 0));
 
             al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 10, ALLEGRO_ALIGN_LEFT, "STATE: %d", player->state);
+            al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 20, ALLEGRO_ALIGN_LEFT, "X-pos: %d", player->x);
+            al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 30, ALLEGRO_ALIGN_LEFT, "Y-pos: %d", player->y);
+            al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 40, ALLEGRO_ALIGN_LEFT, "X-hitbox: %d", player->hitbox->x);
+            al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 50, ALLEGRO_ALIGN_LEFT, "Y-hitbox: %d", player->hitbox->y);
+
             for(struct Bullet* index = player->pistol->shots; index != NULL; index = index->next)
                 al_draw_filled_circle(index->x, index->y, 2, al_map_rgb(255, 0, 0)); 
 
+            al_draw_filled_rectangle(player->x - size, player->y - size,
+                player->x + size, player->y + size, al_map_rgb(255, 0, 0));
 
             al_flip_display();
         }
