@@ -7,6 +7,8 @@
 #define LEFT 0 
 #define RIGHT 1
 
+#include <allegro5/allegro5.h>
+#include <allegro5/allegro_primitives.h>
 #include "Hitbox.h"
 
 struct Player;
@@ -14,6 +16,7 @@ struct Bullet
 {
     unsigned short x;
     unsigned short y;
+    unsigned char timerToLive;
     unsigned char trajectory;
     struct Hitbox* hitbox;
     struct Bullet* next;

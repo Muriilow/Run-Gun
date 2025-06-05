@@ -9,6 +9,7 @@ struct Bullet* BulletCreate(unsigned short x, unsigned short y, unsigned char tr
 
     newBullet->x = x;
     newBullet->y = y;
+    newBullet->timerToLive = 180;
     newBullet->trajectory = trajectory;
     newBullet->hitbox = HitboxCreate(5, 5, x, y);
     newBullet->next = next;
@@ -22,12 +23,18 @@ void BulletUpdate(struct Player* player)
 
     for(struct Bullet* index = player->pistol->shots; index != NULL;)
     {
+        index->timerToLive--;
+
         if(index->trajectory == LEFT)
             index->x -= BULLET_MOVE;
         else
             index->x += BULLET_MOVE;
 
-        if(index->x < 0 || index->x > player->maxX)
+        index->hitbox->x = index->x;
+
+        al_draw_filled_circle(index->x, index->y, 2, al_map_rgb(255, 0, 0));
+
+        if(index->x > player->position.screenX || index->timerToLive == 0)
         {
             if(previous)
             {
@@ -54,8 +61,3 @@ void BulletDestroy(struct Bullet* bullet)
 {
     free(bullet);
 }
-
-//void BulletCollision()
-//{
-//
-//}

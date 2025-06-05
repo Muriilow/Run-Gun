@@ -4,6 +4,7 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_image.h>
 #include "Player.h"
+#include "NormalEnemy.h"
 
 void InputControl(ALLEGRO_EVENT event, struct Player* player)
 {
@@ -28,16 +29,19 @@ void InputControl(ALLEGRO_EVENT event, struct Player* player)
             JoystickActivate(player->control, FIRE);
             break;
     }
-}
+};
+
 void BackgroundUpdate(ALLEGRO_BITMAP* bg, int width, int xAxis)
 {
     al_draw_bitmap(bg, xAxis, 0, 0);
     al_draw_bitmap(bg, xAxis + width, 0, 0);
-}
+};
+
 int main()
 {
     al_init();
     al_init_image_addon();
+    al_init_primitives_addon();
     al_install_keyboard();
     al_set_new_display_flags(ALLEGRO_FULLSCREEN | ALLEGRO_OPENGL);
     
@@ -48,7 +52,8 @@ int main()
     ALLEGRO_FONT* font; 
     ALLEGRO_EVENT event;
     struct Player* player;
-    int screenW, screenH, imgW, imgH, newW, posX, bgOffset, size;
+    struct NormalEnemy* enemy;
+    int screenW, screenH, imgW, imgH;
     float scale;
 
 
@@ -68,20 +73,20 @@ int main()
     imgH = al_get_bitmap_height(background);
 
     scale = (float)screenW / (float)imgH;
-    newW = imgW * scale;
-    posX = (screenW - newW) / 2;
 
     //Any keyboard, screen or timer events will be inserted in our queue
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
 
+    struct Position pos = {301, screenW/2, screenW, screenH};
     //Creating players
-    player = PlayerCreate(20, RIGHT, 301, screenW/2, screenW, screenH);
+    player = PlayerCreate(20, RIGHT, pos);
 
+    struct Position posEnemy = {601, screenW/2, screenW, screenH};
+    enemy = NormalEnemyCreate(20, posEnemy);
     al_start_timer(timer);
 
-    size = player->side/2;
     int xAxis = 0;
 
     while(1)
@@ -99,23 +104,14 @@ int main()
             BackgroundUpdate(background, imgW, xAxis);
             PlayerUpdate(player);
 
-            if(player->isRight && player->control->right)
-                bgOffset -= 2;
-            if(player->isLeft && player->control->left)
-                bgOffset += 2;
-
+            if(enemy->health > 0)
+                NormalEnemyUpdate(enemy, player);
 
             al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 10, ALLEGRO_ALIGN_LEFT, "STATE: %d", player->state);
-            al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 20, ALLEGRO_ALIGN_LEFT, "X-pos: %d", player->x);
-            al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 30, ALLEGRO_ALIGN_LEFT, "Y-pos: %d", player->y);
+            al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 20, ALLEGRO_ALIGN_LEFT, "X-pos: %d", player->position.x);
+            al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 30, ALLEGRO_ALIGN_LEFT, "Y-pos: %d", player->position.y);
             al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 40, ALLEGRO_ALIGN_LEFT, "X-hitbox: %d", player->hitbox->x);
             al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 50, ALLEGRO_ALIGN_LEFT, "Y-hitbox: %d", player->hitbox->y);
-
-            for(struct Bullet* index = player->pistol->shots; index != NULL; index = index->next)
-                al_draw_filled_circle(index->x, index->y, 2, al_map_rgb(255, 0, 0)); 
-
-            al_draw_filled_rectangle(player->x - size, player->y - size,
-                player->x + size, player->y + size, al_map_rgb(255, 0, 0));
 
             al_flip_display();
         }

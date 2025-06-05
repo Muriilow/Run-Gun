@@ -4,6 +4,7 @@
 #include "Hitbox.h"
 #include "Joystick.h"
 #include "Pistol.h"
+#include "Utils.h"
 #define X_SCREEN 320 
 #define Y_SCREEN 320
 #define LEFT 0
@@ -19,14 +20,6 @@
 
 #define PLAYER_STEP 3
 
-enum State
-{
-    IDLE,
-    RUN,
-    JUMPING,
-    DOUBLE_JUMP,
-};
-
 struct Player 
 {
     unsigned char side; 
@@ -34,10 +27,7 @@ struct Player
     unsigned char isOnGround;
     unsigned char isLeft; //Am I at the left end of the camera
     unsigned char isRight;
-    unsigned short x;
-    unsigned short y;
-    unsigned short maxX;
-    unsigned short maxY;
+    struct Position position;
     float velocityY;
     char jumpStrength;
     struct Joystick* control;
@@ -47,7 +37,7 @@ struct Player
 };
 
 //"Constructor"
-struct Player* PlayerCreate(unsigned char side, unsigned char face, unsigned short x, unsigned short y, unsigned short maxX, unsigned short maxY);
+struct Player* PlayerCreate(unsigned char side, unsigned char face, struct Position position);
 void PlayerMove(struct Player* player, unsigned char steps, unsigned char trajectory);
 void PlayerUpdate(struct Player* player);
 void PlayerDestroy(struct Player* player);
