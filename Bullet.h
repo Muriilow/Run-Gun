@@ -10,19 +10,21 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_primitives.h>
 #include "Hitbox.h"
+#include "Utils.h"
 
 struct Player;
 struct Bullet 
 {
+    float velocity;
     unsigned short x;
     unsigned short y;
     unsigned char timerToLive;
-    unsigned char trajectory;
+    struct Vector2 trajectory;
     struct Hitbox* hitbox;
     struct Bullet* next;
 };
 
-struct Bullet* BulletCreate(unsigned short x, unsigned short y, unsigned char trajectory, struct Bullet* next);
+struct Bullet* BulletCreate(unsigned short x, unsigned short y, struct Vector2 trajectory, float velocity, struct Bullet* next);
 void BulletUpdate(struct Player* player);
 void BulletDestroy(struct Bullet* bullet);
 #endif

@@ -1,12 +1,15 @@
 #include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
 #include "Bullet.h"
 #include "Player.h"
-struct Bullet* BulletCreate(unsigned short x, unsigned short y, unsigned char trajectory, struct Bullet* next)
+struct Bullet* BulletCreate(unsigned short x, unsigned short y, struct Vector2 trajectory, float velocity, struct Bullet* next)
 {
     struct Bullet* newBullet = malloc(sizeof(struct Bullet));
     if(newBullet == NULL)
         return NULL;
 
+    newBullet->velocity = velocity;
     newBullet->x = x;
     newBullet->y = y;
     newBullet->timerToLive = 180;
@@ -25,12 +28,12 @@ void BulletUpdate(struct Player* player)
     {
         index->timerToLive--;
 
-        if(index->trajectory == LEFT)
-            index->x -= BULLET_MOVE;
-        else
-            index->x += BULLET_MOVE;
-
+        index->x += (unsigned short)index->trajectory.x * index->velocity;
+        index->y += (unsigned short)index->trajectory.y * index->velocity;
         index->hitbox->x = index->x;
+        index->hitbox->y = index->y;
+
+        printf("%d - %d\n", index->hitbox->x, index->hitbox->y);
 
         al_draw_filled_circle(index->x, index->y, 2, al_map_rgb(255, 0, 0));
 

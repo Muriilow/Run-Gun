@@ -105,13 +105,16 @@ int main()
             PlayerUpdate(player);
 
             if(enemy->health > 0)
-                NormalEnemyUpdate(enemy, player);
+                //NormalEnemyUpdate(enemy, player);
 
             al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 10, ALLEGRO_ALIGN_LEFT, "STATE: %d", player->state);
             al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 20, ALLEGRO_ALIGN_LEFT, "X-pos: %d", player->position.x);
             al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 30, ALLEGRO_ALIGN_LEFT, "Y-pos: %d", player->position.y);
             al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 40, ALLEGRO_ALIGN_LEFT, "X-hitbox: %d", player->hitbox->x);
             al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 50, ALLEGRO_ALIGN_LEFT, "Y-hitbox: %d", player->hitbox->y);
+            al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 60, ALLEGRO_ALIGN_LEFT, "isOnGround: %d", player->isOnGround);
+            al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 70, ALLEGRO_ALIGN_LEFT, "isLeft: %d", player->isLeft);
+            al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 80, ALLEGRO_ALIGN_LEFT, "velocityY: %f", player->velocityY);
 
             al_flip_display();
         }

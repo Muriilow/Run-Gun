@@ -13,9 +13,9 @@ struct Pistol* PistolCreate()
     return newPistol;
 }
 
-struct Bullet* PistolShot(unsigned short x, unsigned short y, unsigned char trajectory, struct Pistol* gun)
+struct Bullet* PistolShot(unsigned short x, unsigned short y, struct Vector2 trajectory, float velocity, struct Pistol* gun)
 {
-    struct Bullet* newBullet = BulletCreate(x, y, trajectory, gun->shots);
+    struct Bullet* newBullet = BulletCreate(x, y, trajectory, velocity, gun->shots);
     if(newBullet == NULL)
         return NULL;
 

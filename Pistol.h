@@ -7,6 +7,7 @@
 #define RIGHT 1
 
 #include "Bullet.h"
+#include "Utils.h"
 
 #define PISTOL_COOLDOWN 10
 
@@ -17,7 +18,7 @@ struct Pistol
 };
 
 struct Pistol* PistolCreate();
-struct Bullet* PistolShot(unsigned short x, unsigned short y, unsigned char trajectory, struct Pistol* gun);
+struct Bullet* PistolShot(unsigned short x, unsigned short y, struct Vector2 trajectory, float velocity, struct Pistol* gun);
 void PistolDestroy(struct Pistol* pistol);
 
 #endif

@@ -24,12 +24,12 @@ struct Player
 {
     unsigned char side; 
     unsigned char face; //Am I facing right or left?
+    unsigned char jumpStrength;
     unsigned char isOnGround;
     unsigned char isLeft; //Am I at the left end of the camera
     unsigned char isRight;
     struct Position position;
     float velocityY;
-    char jumpStrength;
     struct Joystick* control;
     struct Pistol* pistol;
     struct Hitbox* hitbox;

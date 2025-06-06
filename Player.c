@@ -58,7 +58,7 @@ void EnterJumpHandler(struct Player* player)
 
 void EventJumpHandler(struct Player* player)
 {
-    if(player->isOnGround)
+    if(player->isOnGround == TRUE)
     {
         EnterIdleHandler(player);
         return;
@@ -150,7 +150,7 @@ void PlayerUpdate(struct Player* player)
     player->hitbox->y = player->position.y;
     player->hitbox->x = player->position.x;
 
-    if(!player->isOnGround)
+    if(player->isOnGround == FALSE)
         player->velocityY += GRAVITY;
 
     if(player->position.y >= player->position.screenX/2)
@@ -198,10 +198,15 @@ void PlayerShot(struct Player* player)
 {
     struct Bullet* shot;
     if(player->face == LEFT)
-        shot = PistolShot(player->position.x - player->side/2, player->position.y, player->face, player->pistol);
+    {
+        struct Vector2 traj = {-1, 0};
+        shot = PistolShot(player->position.x - player->side/2, player->position.y, traj, 3., player->pistol);
+    }
     else if(player->face == RIGHT)
-        shot = PistolShot(player->position.x + player->side/2, player->position.y, player->face, player->pistol);
-
+    {
+        struct Vector2 traj = {1, 0};
+        shot = PistolShot(player->position.x + player->side/2, player->position.y, traj, 3.,player->pistol);
+    }
     if(shot)
         player->pistol->shots = shot;
 }
