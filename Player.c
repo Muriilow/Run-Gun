@@ -3,7 +3,7 @@
 #include <allegro5/allegro_primitives.h>
 #include "Player.h"
 
-struct Player* PlayerCreate(unsigned char side, unsigned char face, struct Position position)
+struct Player* PlayerCreate(unsigned char side, unsigned char face, struct Position position, struct Viewport* viewport)
 {
     struct Player* newPlayer;
     unsigned char boundariesX;
@@ -33,6 +33,7 @@ struct Player* PlayerCreate(unsigned char side, unsigned char face, struct Posit
     newPlayer->hitbox = HitboxCreate(side, side, position.x, position.y);
     newPlayer->control = JoystickCreate();
     newPlayer->pistol = PistolCreate();
+    newPlayer->viewport = viewport;
     newPlayer->state = IDLE;
 
     return newPlayer;
@@ -46,6 +47,8 @@ void EnterRunHandler(struct Player* player)
 }
 void EnterIdleHandler(struct Player* player)
 {
+    player->isLeft = FALSE;
+    player->isRight = FALSE;
     player->state = IDLE;
 }
 void EnterJumpHandler(struct Player* player)
@@ -101,32 +104,52 @@ void EventIdleHandler(struct Player* player, enum State state)
 void PlayerMove(struct Player* player, unsigned char steps, unsigned char trajectory)
 {
     int leftZone = 300;
-    int rightZone = player->position.screenX - 300;
+    int rightZone = 500;
 
     if(trajectory == LEFT)
     {
-        player->position.x -= steps*PLAYER_STEP;
+        player->position.worldX -= steps*PLAYER_STEP;
         player->face = LEFT;
+        if(!(player->position.x <= rightZone))
+        {
+            player->isRight = FALSE;
+            player->position.x -= steps*PLAYER_STEP;
+            return;
+        }
+
         if(!(player->position.x >= leftZone && player->position.x <= rightZone))
         {
+            player->viewport->offsetX -= steps*PLAYER_STEP;
             player->isLeft = TRUE;
-            player->position.x += steps*PLAYER_STEP;
         }
         else
+        {
             player->isRight = FALSE;
+            player->position.x -= steps*PLAYER_STEP;
+        }
     }
 
     else if(trajectory == RIGHT)
     {
-        player->position.x += steps*PLAYER_STEP;
+        player->position.worldX += steps*PLAYER_STEP;
         player->face = RIGHT;
+        if(!(player->position.x >= leftZone))
+        {
+            player->isLeft = FALSE;
+            player->position.x += steps*PLAYER_STEP;
+            return;
+        }
         if(!(player->position.x >= leftZone && player->position.x <= rightZone))
         {
+            player->viewport->offsetX += steps*PLAYER_STEP;
             player->isRight = TRUE;
-            player->position.x -= steps*PLAYER_STEP;
         }
         else
+        {
             player->isLeft = FALSE;
+            player->position.x += steps*PLAYER_STEP;
+        }
+
     }
 }
 
@@ -147,6 +170,7 @@ void PlayerUpdate(struct Player* player)
     enum State newState = IDLE;
    
     player->position.y += player->velocityY;
+    player->position.worldY += player->velocityY;
     player->hitbox->y = player->position.y;
     player->hitbox->x = player->position.x;
 
@@ -155,6 +179,7 @@ void PlayerUpdate(struct Player* player)
 
     if(player->position.y >= player->position.screenX/2)
     {
+        player->position.worldY = player->position.screenX/2;
         player->position.y = player->position.screenX/2;
         player->velocityY = 0;
         player->isOnGround = TRUE;
@@ -174,14 +199,16 @@ void PlayerUpdate(struct Player* player)
         player->pistol->timer = PISTOL_COOLDOWN;
     }
 
-    BulletUpdate(player);
+    PlayerBulletUpdate(player);
 
     if(player->pistol->timer)
         player->pistol->timer--;
 
     /*Drawing the player and bullets*/
-    al_draw_filled_rectangle(player->position.x - size, player->position.y - size,
-        player->position.x + size, player->position.y + size, al_map_rgb(255, 0, 0));
+    al_draw_filled_rectangle((player->position.x - size) + player->viewport->x,
+        (player->position.y - size) + player->viewport->y, 
+        (player->position.x + size) + player->viewport->x,
+        (player->position.y + size) + player->viewport->y, al_map_rgb(255, 0, 0));
 
 }
 

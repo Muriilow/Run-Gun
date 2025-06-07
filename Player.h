@@ -5,6 +5,7 @@
 #include "Joystick.h"
 #include "Pistol.h"
 #include "Utils.h"
+
 #define X_SCREEN 320 
 #define Y_SCREEN 320
 #define LEFT 0
@@ -24,12 +25,13 @@ struct Player
 {
     unsigned char side; 
     unsigned char face; //Am I facing right or left?
-    unsigned char jumpStrength;
     unsigned char isOnGround;
     unsigned char isLeft; //Am I at the left end of the camera
     unsigned char isRight;
     struct Position position;
+    char jumpStrength;
     float velocityY;
+    struct Viewport* viewport;
     struct Joystick* control;
     struct Pistol* pistol;
     struct Hitbox* hitbox;
@@ -37,7 +39,7 @@ struct Player
 };
 
 //"Constructor"
-struct Player* PlayerCreate(unsigned char side, unsigned char face, struct Position position);
+struct Player* PlayerCreate(unsigned char side, unsigned char face, struct Position position, struct Viewport* viewport);
 void PlayerMove(struct Player* player, unsigned char steps, unsigned char trajectory);
 void PlayerUpdate(struct Player* player);
 void PlayerDestroy(struct Player* player);

@@ -6,6 +6,8 @@
 #include "Player.h"
 #include "NormalEnemy.h"
 
+#define WHITE al_map_rgb(255, 255, 255)
+
 void InputControl(ALLEGRO_EVENT event, struct Player* player)
 {
     switch(event.keyboard.keycode)
@@ -78,12 +80,14 @@ int main()
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
-
-    struct Position pos = {301, screenW/2, screenW, screenH};
+    
+    struct Viewport viewport = {0, 0, 0, 0, screenW, screenH};
+    struct Position pos = {301, screenW/2, 301, screenW/2, screenW, screenH};
     //Creating players
-    player = PlayerCreate(20, RIGHT, pos);
+    player = PlayerCreate(20, RIGHT, pos, &viewport);
 
-    struct Position posEnemy = {601, screenW/2, screenW, screenH};
+    struct Position posEnemy = {1301, screenW/2, 1301, screenW/2, screenW, screenH};
+    
     enemy = NormalEnemyCreate(20, posEnemy);
     al_start_timer(timer);
 
@@ -105,16 +109,25 @@ int main()
             PlayerUpdate(player);
 
             if(enemy->health > 0)
-                //NormalEnemyUpdate(enemy, player);
-
-            al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 10, ALLEGRO_ALIGN_LEFT, "STATE: %d", player->state);
-            al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 20, ALLEGRO_ALIGN_LEFT, "X-pos: %d", player->position.x);
-            al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 30, ALLEGRO_ALIGN_LEFT, "Y-pos: %d", player->position.y);
-            al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 40, ALLEGRO_ALIGN_LEFT, "X-hitbox: %d", player->hitbox->x);
-            al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 50, ALLEGRO_ALIGN_LEFT, "Y-hitbox: %d", player->hitbox->y);
-            al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 60, ALLEGRO_ALIGN_LEFT, "isOnGround: %d", player->isOnGround);
-            al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 70, ALLEGRO_ALIGN_LEFT, "isLeft: %d", player->isLeft);
-            al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 80, ALLEGRO_ALIGN_LEFT, "velocityY: %f", player->velocityY);
+            {
+                NormalEnemyUpdate(enemy, player);
+                al_draw_textf(font, WHITE, 200, 50, ALLEGRO_ALIGN_LEFT, "Xenemy: %d", enemy->position.x);
+                al_draw_textf(font, WHITE, 200, 60, ALLEGRO_ALIGN_LEFT, "Yenemy: %d", enemy->position.y);
+            }
+            
+            al_draw_textf(font, WHITE, 10, 10, ALLEGRO_ALIGN_LEFT, "STATE: %d", player->state);
+            al_draw_textf(font, WHITE, 10, 20, ALLEGRO_ALIGN_LEFT, "X-pos: %d", player->position.x);
+            al_draw_textf(font, WHITE, 10, 30, ALLEGRO_ALIGN_LEFT, "Y-pos: %d", player->position.y);
+            al_draw_textf(font, WHITE, 200, 10, ALLEGRO_ALIGN_LEFT, "XWorld-pos: %d", player->position.worldX);
+            al_draw_textf(font, WHITE, 200, 20, ALLEGRO_ALIGN_LEFT, "YWorld-pos: %d", player->position.worldY);
+            al_draw_textf(font, WHITE, 10, 40, ALLEGRO_ALIGN_LEFT, "X-hitbox: %d", player->hitbox->x);
+            al_draw_textf(font, WHITE, 10, 50, ALLEGRO_ALIGN_LEFT, "Y-hitbox: %d", player->hitbox->y);
+            al_draw_textf(font, WHITE, 10, 60, ALLEGRO_ALIGN_LEFT, "isOnGround: %d", player->isOnGround);
+            al_draw_textf(font, WHITE, 10, 70, ALLEGRO_ALIGN_LEFT, "isLeft: %d", player->isLeft);
+            al_draw_textf(font, WHITE, 10, 80, ALLEGRO_ALIGN_LEFT, "isRight: %d", player->isRight);
+            al_draw_textf(font, WHITE, 10, 90, ALLEGRO_ALIGN_LEFT, "velocityY: %f", player->velocityY);
+            al_draw_textf(font, WHITE, 200, 30, ALLEGRO_ALIGN_LEFT, "Xviewport: %f", viewport.offsetX);
+            al_draw_textf(font, WHITE, 200, 40, ALLEGRO_ALIGN_LEFT, "Yviewport: %f", viewport.offsetY);
 
             al_flip_display();
         }

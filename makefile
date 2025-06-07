@@ -6,7 +6,7 @@ CPRIM = $(shell pkg-config --cflags allegro-5 allegro_primitives-5)
 main: $(SRCS)
 	gcc -Wall -Wextra $(SRCS) -o game $(LDFLAGS) -lm 
 
-Main.o: Main.c Player.h NormalEnemy.h
+Main.o: Main.c Player.h Player.h NormalEnemy.h
 	gcc -Wall -Wextra $(CFLAGS) -c Main.c
 
 Player.o: Player.c Player.h Utils.h
@@ -21,7 +21,7 @@ Joystick.o: Joystick.c Joystick.h
 Hitbox.o: Hitbox.c Hitbox.h
 	gcc -Wall -Wextra -c Hitbox.c
 
-Pistol.o: Pistol.c Pistol.h
+Pistol.o: Pistol.c Pistol.h Utils.h
 	gcc -Wall -Wextra -c Pistol.c
 
 Bullet.o: Bullet.c Bullet.h Hitbox.h Utils.h

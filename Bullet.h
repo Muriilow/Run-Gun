@@ -16,15 +16,14 @@ struct Player;
 struct Bullet 
 {
     float velocity;
-    unsigned short x;
-    unsigned short y;
+    float x;
+    float y;
     unsigned char timerToLive;
     struct Vector2 trajectory;
     struct Hitbox* hitbox;
     struct Bullet* next;
 };
 
-struct Bullet* BulletCreate(unsigned short x, unsigned short y, struct Vector2 trajectory, float velocity, struct Bullet* next);
-void BulletUpdate(struct Player* player);
+struct Bullet* BulletCreate(float x, float y, struct Vector2 trajectory, float velocity, struct Bullet* next);
 void BulletDestroy(struct Bullet* bullet);
 #endif
