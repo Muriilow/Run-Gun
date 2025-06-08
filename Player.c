@@ -3,14 +3,14 @@
 #include <allegro5/allegro_primitives.h>
 #include "Player.h"
 
-struct Player* PlayerCreate(unsigned char side, unsigned char face, struct Position position, struct Viewport* viewport)
+struct Player* PlayerCreate(unsigned char side, struct Position position, struct Viewport* viewport)
 {
     struct Player* newPlayer;
     unsigned char boundariesX;
     unsigned char boundariesY;
 
-    boundariesX = (position.x - side/2 < 0) || (position.x + side/2 > position.screenX);
-    boundariesY = (position.y - side/1 < 0) || (position.y + side/2 > position.screenY);
+    boundariesX = (position.x - side/2 < 0) || (position.x + side/2 > viewport->width);
+    boundariesY = (position.y - side/1 < 0) || (position.y + side/2 > viewport->height);
 
     if(boundariesX || boundariesY)
         return NULL;
@@ -21,8 +21,8 @@ struct Player* PlayerCreate(unsigned char side, unsigned char face, struct Posit
         exit(EXIT_FAILURE);
 
     newPlayer->side = side;
-    newPlayer->face = face;
-    newPlayer->isOnGround = TRUE;
+    newPlayer->face = RIGHT;
+    newPlayer->isOnGround = FALSE;
     newPlayer->isRight = FALSE;
     newPlayer->isLeft = FALSE;
 
@@ -103,21 +103,23 @@ void EventIdleHandler(struct Player* player, enum State state)
 
 void PlayerMove(struct Player* player, unsigned char steps, unsigned char trajectory)
 {
-    int leftZone = 300;
-    int rightZone = 500;
-
     if(trajectory == LEFT)
     {
         player->position.worldX -= steps*PLAYER_STEP;
         player->face = LEFT;
-        if(!(player->position.x <= rightZone))
+
+        /*If the player is at the right corner but has pressed left, we stop
+         * moving the background*/
+
+        if(player->position.x > RIGHT_CORNER)
         {
             player->isRight = FALSE;
             player->position.x -= steps*PLAYER_STEP;
             return;
         }
-
-        if(!(player->position.x >= leftZone && player->position.x <= rightZone))
+        
+        /*If the player is forcing its position to the left corner*/
+        if(player->position.x < LEFT_CORNER)
         {
             player->viewport->offsetX -= steps*PLAYER_STEP;
             player->isLeft = TRUE;
@@ -133,13 +135,18 @@ void PlayerMove(struct Player* player, unsigned char steps, unsigned char trajec
     {
         player->position.worldX += steps*PLAYER_STEP;
         player->face = RIGHT;
-        if(!(player->position.x >= leftZone))
+
+        /*If the player is at the left corner but has pressed right, we stop
+         * moving the background*/
+        if(player->position.x < LEFT_CORNER)
         {
             player->isLeft = FALSE;
             player->position.x += steps*PLAYER_STEP;
             return;
         }
-        if(!(player->position.x >= leftZone && player->position.x <= rightZone))
+        
+        /*If the player is forcing its position to the right corner*/
+        if(player->position.x > RIGHT_CORNER)
         {
             player->viewport->offsetX += steps*PLAYER_STEP;
             player->isRight = TRUE;
@@ -149,7 +156,6 @@ void PlayerMove(struct Player* player, unsigned char steps, unsigned char trajec
             player->isLeft = FALSE;
             player->position.x += steps*PLAYER_STEP;
         }
-
     }
 }
 
@@ -177,10 +183,10 @@ void PlayerUpdate(struct Player* player)
     if(player->isOnGround == FALSE)
         player->velocityY += GRAVITY;
 
-    if(player->position.y >= player->position.screenX/2)
+    if(player->position.y >= player->viewport->width/2)
     {
-        player->position.worldY = player->position.screenX/2;
-        player->position.y = player->position.screenX/2;
+        player->position.worldY = player->viewport->width/2;
+        player->position.y = player->viewport->width/2;
         player->velocityY = 0;
         player->isOnGround = TRUE;
     }
@@ -227,12 +233,12 @@ void PlayerShot(struct Player* player)
     if(player->face == LEFT)
     {
         struct Vector2 traj = {-1, 0};
-        shot = PistolShot(player->position.x - player->side/2, player->position.y, traj, 3., player->pistol);
+        shot = PistolShot(player->position.worldX - player->side/2, player->position.worldY, traj, 3., player->pistol);
     }
     else if(player->face == RIGHT)
     {
         struct Vector2 traj = {1, 0};
-        shot = PistolShot(player->position.x + player->side/2, player->position.y, traj, 3.,player->pistol);
+        shot = PistolShot(player->position.worldX + player->side/2, player->position.worldY, traj, 3.,player->pistol);
     }
     if(shot)
         player->pistol->shots = shot;

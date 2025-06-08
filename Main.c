@@ -56,7 +56,6 @@ int main()
     struct Player* player;
     struct NormalEnemy* enemy;
     int screenW, screenH, imgW, imgH;
-    float scale;
 
 
     timer = al_create_timer(1.0 / 60.0);
@@ -74,19 +73,17 @@ int main()
     imgW = al_get_bitmap_width(background);
     imgH = al_get_bitmap_height(background);
 
-    scale = (float)screenW / (float)imgH;
-
     //Any keyboard, screen or timer events will be inserted in our queue
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
     
     struct Viewport viewport = {0, 0, 0, 0, screenW, screenH};
-    struct Position pos = {301, screenW/2, 301, screenW/2, screenW, screenH};
+    struct Position pos = {301, 100, 301, 100};
     //Creating players
-    player = PlayerCreate(20, RIGHT, pos, &viewport);
+    player = PlayerCreate(20, pos, &viewport);
 
-    struct Position posEnemy = {1301, screenW/2, 1301, screenW/2, screenW, screenH};
+    struct Position posEnemy = {1301, screenW/2, 1301, screenW/2};
     
     enemy = NormalEnemyCreate(20, posEnemy);
     al_start_timer(timer);

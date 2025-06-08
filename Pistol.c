@@ -48,9 +48,10 @@ void PlayerBulletUpdate(struct Player* player)
         index->hitbox->x = (unsigned short)index->x;
         index->hitbox->y = (unsigned short)index->y;
 
-        al_draw_filled_circle(index->x, index->y, 2, al_map_rgb(255, 0, 0));
+        al_draw_filled_circle(index->x - player->viewport->offsetX, index->y -
+                              player->viewport->offsetY, 2, al_map_rgb(255, 0, 0));
 
-        if(index->x > player->position.screenX || index->timerToLive == 0)
+        if(index->x > player->viewport->width || index->timerToLive == 0)
         {
             if(previous)
             {
@@ -85,9 +86,10 @@ void EnemyBulletUpdate(struct NormalEnemy* enemy, struct Player* player)
         index->hitbox->x = (unsigned short)index->x;
         index->hitbox->y = (unsigned short)index->y;
         
-        al_draw_filled_circle(index->x, index->y, 2, al_map_rgb(255, 0, 0));
+        al_draw_filled_circle(index->x - player->viewport->offsetX, index->y -
+                              player->viewport->offsetY, 2, al_map_rgb(255, 0, 0));
 
-        if(index->x > enemy->position.screenX || index->timerToLive == 0)
+        if(index->x > player->viewport->width || index->timerToLive == 0)
         {
             if(previous)
             {
