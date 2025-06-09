@@ -1,31 +1,44 @@
-SRCS = Main.o Player.o Joystick.o Pistol.o Bullet.o Hitbox.o NormalEnemy.o
+SRC_FILES = Main.o Player.o Joystick.o Pistol.o Bullet.o Hitbox.o NormalEnemy.o Ground.o
+
+SRC_MAIN = $(addprefix Assets/Scripts/, Main.c Player.h NormalEnemy.h)
+SRC_PLAYER = $(addprefix Assets/Scripts/, Player.c Player.h Utils.h)
+SRC_ENEMY = $(addprefix Assets/Scripts/, NormalEnemy.c NormalEnemy.h Hitbox.h Utils.h)
+SRC_JOYSTICK = $(addprefix Assets/Scripts/, Joystick.c Joystick.h)
+SRC_HITBOX = $(addprefix Assets/Scripts/, Hitbox.c Hitbox.h)
+SRC_PISTOL = $(addprefix Assets/Scripts/, Pistol.c Pistol.h Utils.h)
+SRC_BULLET = $(addprefix Assets/Scripts/, Bullet.c Bullet.h Hitbox.h Utils.h)
+SRC_GROUND = $(addprefix Assets/Scripts/, Ground.c Ground.h Hitbox.h Utils.h Player.h)
+
 LDFLAGS = $(shell pkg-config --libs allegro-5 allegro_main-5 allegro_font-5 allegro_primitives-5 allegro_image-5) 
 CFLAGS = $(shell pkg-config --cflags allegro-5 allegro_main-5 allegro_font-5 allegro_primitives-5 allegro_image-5)
 CPRIM = $(shell pkg-config --cflags allegro-5 allegro_primitives-5)
 
-main: $(SRCS)
-	gcc -Wall -Wextra $(SRCS) -o game $(LDFLAGS) -lm 
+main: $(SRC_FILES)
+	gcc -Wall -Wextra $(SRC_FILES) -o game $(LDFLAGS) -lm 
 
-Main.o: Main.c Player.h Player.h NormalEnemy.h
-	gcc -Wall -Wextra $(CFLAGS) -c Main.c
+Main.o: $(SRC_MAIN)
+	gcc -Wall -Wextra $(CFLAGS) -c Assets/Scripts/Main.c
 
-Player.o: Player.c Player.h Utils.h
-	gcc -Wall -Wextra $(CPRIM) -c Player.c
+Player.o: $(SRC_PLAYER)
+	gcc -Wall -Wextra $(CPRIM) -c Assets/Scripts/Player.c
 
-NormalEnemy.o: NormalEnemy.c NormalEnemy.h Player.h Hitbox.h Utils.h
-	gcc -Wall -Wextra $(CPRIM) -c NormalEnemy.c
+NormalEnemy.o: $(SRC_ENEMY)
+	gcc -Wall -Wextra $(CPRIM) -c Assets/Scripts/NormalEnemy.c
 
-Joystick.o: Joystick.c Joystick.h 
-	gcc -Wall -Wextra -c Joystick.c
+Joystick.o: $(SRC_JOYSTICK) 
+	gcc -Wall -Wextra -c Assets/Scripts/Joystick.c
 
-Hitbox.o: Hitbox.c Hitbox.h
-	gcc -Wall -Wextra -c Hitbox.c
+Hitbox.o: $(SRC_HITBOX)
+	gcc -Wall -Wextra -c Assets/Scripts/Hitbox.c
 
-Pistol.o: Pistol.c Pistol.h Utils.h
-	gcc -Wall -Wextra -c Pistol.c
+Pistol.o: $(SRC_PISTOL)
+	gcc -Wall -Wextra -c Assets/Scripts/Pistol.c
 
-Bullet.o: Bullet.c Bullet.h Hitbox.h Utils.h
-	gcc -Wall -Wextra $(CPRIM) -c Bullet.c
+Bullet.o: $(SRC_BULLET)
+	gcc -Wall -Wextra $(CPRIM) -c Assets/Scripts/Bullet.c
+
+Ground.o: $(SRC_GROUND)
+	gcc -Wall -Wextra $(CPRIM) -c Assets/Scripts/Ground.c
 
 clean:
 	rm -f *.o game
