@@ -6,6 +6,8 @@
 #include "Player.h"
 #include "NormalEnemy.h"
 #include "Ground.h"
+#include "Item.h"
+#include "GameManager.h"
 
 #define WHITE al_map_rgb(255, 255, 255)
 
@@ -54,9 +56,10 @@ int main()
     ALLEGRO_EVENT_QUEUE* queue; 
     ALLEGRO_FONT* font; 
     ALLEGRO_EVENT event;
+    struct Item* item;
     struct Player* player;
-    struct NormalEnemy* enemy;
     struct Ground* ground;
+    struct GameManager* manager;
     int screenW, screenH, imgW, imgH;
 
 
@@ -84,11 +87,17 @@ int main()
     struct Position pos = {301, 100, 301, 100};
     player = PlayerCreate(20, pos, &viewport);
 
-    struct Position posEnemy = {1301, screenW/2, 1301, screenW/2};
-    enemy = NormalEnemyCreate(20, posEnemy);
+    manager = GameManagerCreate(player);
 
-    struct Position posGround = {1301, 100, 1301, 100};
-    ground = GroundCreate(50, posGround);
+    struct Position posEnemy1 = {1301, screenW/2, 1301, screenW/2};
+    CreateNormalEnemy(manager, 20, posEnemy1);
+    struct Position posEnemy2 = {1601, screenW/2, 1601, screenW/2}; 
+    CreateNormalEnemy(manager, 20, posEnemy2);
+    struct Position posEnemy3 = {2001, screenW/2, 2001, screenW/2};
+    CreateNormalEnemy(manager, 20, posEnemy3);
+
+    struct Position posItem = {501, screenW/2, 501, screenW/2};
+    CreateLifeItem(manager, 10, posItem);
 
     al_start_timer(timer);
 
@@ -98,6 +107,8 @@ int main()
     {
         al_wait_for_event(queue, &event);
         
+        if(player->health <= 0)
+            break;
         //Clock event
         if(event.type == ALLEGRO_EVENT_TIMER)
         {
@@ -108,16 +119,10 @@ int main()
 
             BackgroundUpdate(background, imgW, xAxis);
             PlayerUpdate(player);
-            GroundUpdate(ground, player);
+            UpdateLogic(manager);  
 
-            if(enemy->health > 0)
-            {
-                NormalEnemyUpdate(enemy, player);
-                al_draw_textf(font, WHITE, 200, 50, ALLEGRO_ALIGN_LEFT, "Xenemy: %d", enemy->position.x);
-                al_draw_textf(font, WHITE, 200, 60, ALLEGRO_ALIGN_LEFT, "Yenemy: %d", enemy->position.y);
-            }
-            
             al_draw_textf(font, WHITE, 10, 10, ALLEGRO_ALIGN_LEFT, "STATE: %d", player->state);
+            al_draw_textf(font, WHITE, 10, 100, ALLEGRO_ALIGN_LEFT, "HEALTH: %d", player->health);
             al_draw_textf(font, WHITE, 10, 20, ALLEGRO_ALIGN_LEFT, "X-pos: %d", player->position.x);
             al_draw_textf(font, WHITE, 10, 30, ALLEGRO_ALIGN_LEFT, "Y-pos: %d", player->position.y);
             al_draw_textf(font, WHITE, 200, 10, ALLEGRO_ALIGN_LEFT, "XWorld-pos: %d", player->position.worldX);

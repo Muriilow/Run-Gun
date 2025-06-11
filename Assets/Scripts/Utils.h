@@ -1,3 +1,9 @@
+#ifndef __UTILS__
+#define __UTILS__
+
+#define TRUE 1
+#define FALSE 0
+
 struct Position
 {
     short x;
@@ -31,3 +37,5 @@ enum Entities
     PLAYER,
     NORMAL_ENEMY,
 };
+
+#endif

@@ -7,8 +7,6 @@
 #include "Utils.h"
 
 /* Defines to simplify the code */
-#define X_SCREEN 320 
-#define Y_SCREEN 320
 #define LEFT 0
 #define RIGHT 1
 #define UP 2
@@ -26,6 +24,7 @@
 
 struct Player 
 {
+    unsigned char health;
     unsigned char side; //The size of my character
     unsigned char face; //Am I facing right or left?
     unsigned char isOnGround;

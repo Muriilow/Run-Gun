@@ -20,6 +20,7 @@ struct Player* PlayerCreate(unsigned char side, struct Position position, struct
     if(newPlayer == NULL)
         exit(EXIT_FAILURE);
 
+    newPlayer->health = 5;
     newPlayer->side = side;
     newPlayer->face = RIGHT;
     newPlayer->isOnGround = FALSE;
@@ -177,8 +178,8 @@ void PlayerUpdate(struct Player* player)
    
     player->position.y += player->velocityY;
     player->position.worldY += player->velocityY;
-    player->hitbox->y = player->position.y;
-    player->hitbox->x = player->position.x;
+    player->hitbox->y = player->position.worldY;
+    player->hitbox->x = player->position.worldX;
 
     if(player->isOnGround == FALSE)
         player->velocityY += GRAVITY;
@@ -233,14 +234,13 @@ void PlayerShot(struct Player* player)
 
     if(player->face == LEFT)
     {
-
         struct Vector2 traj = {-1, 0};
-        shot = PistolShot(player->position, traj, 3., player->pistol);
+        shot = PistolShot(player->position, traj, 6., player->pistol);
     }
     else if(player->face == RIGHT)
     {
         struct Vector2 traj = {1, 0};
-        shot = PistolShot(player->position, traj, 3.,player->pistol);
+        shot = PistolShot(player->position, traj, 6.,player->pistol);
     }
     if(shot)
         player->pistol->shots = shot;

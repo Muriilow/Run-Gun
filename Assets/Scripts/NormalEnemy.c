@@ -5,7 +5,7 @@
 #include <allegro5/allegro_primitives.h>
 #include "NormalEnemy.h"
 
-struct NormalEnemy* NormalEnemyCreate(unsigned char side, struct Position position)
+struct NormalEnemy* NormalEnemyCreate(unsigned char side, struct Position position, struct NormalEnemy* next)
 {
     struct NormalEnemy* enemy;
 
@@ -19,6 +19,7 @@ struct NormalEnemy* NormalEnemyCreate(unsigned char side, struct Position positi
     enemy->position = position;
     enemy->hitbox = HitboxCreate(side, side, position.x, position.y);
     enemy->pistol = PistolCreate();
+    enemy->next = next;
     return enemy;
 }
 void NormalEnemyShot(struct NormalEnemy* enemy, struct Player* player)
@@ -74,6 +75,36 @@ void CheckCollision(struct NormalEnemy* enemy, struct Player* player)
         }
         else
         {
+            previous= index;
+            index = index->next;
+        }
+    }
+
+    previous = NULL;
+    /* Checking if any bullet is colliding with the player */
+    for(struct Bullet* index = enemy->pistol->shots; index != NULL;)
+    {
+        if(HitboxCheck(index->hitbox, player->hitbox))
+        {
+            player->health--;
+
+            if(previous != NULL)
+            {
+                previous->next = index->next;
+                BulletDestroy(index);
+                index = previous->next;
+                break;
+            }
+            else
+            {
+                enemy->pistol->shots = index->next;
+                BulletDestroy(index);
+                index = enemy->pistol->shots;
+                break;
+            }
+        }
+        else
+        {
             previous = index;
             index = index->next;
         }
@@ -91,10 +122,7 @@ void NormalEnemyUpdate(struct NormalEnemy* enemy, struct Player* player)
     /* If enemy died */
     if(enemy->health == 0)
     {
-        PistolDestroy(enemy->pistol);
-        HitboxDestroy(enemy->hitbox);
-        free(enemy);
-
+        NormalEnemyDestroy(enemy); 
         enemy = NULL;
         return;
     }
@@ -111,4 +139,11 @@ void NormalEnemyUpdate(struct NormalEnemy* enemy, struct Player* player)
     CheckCollision(enemy, player);
     CheckDistance(enemy, player);
     EnemyBulletUpdate(enemy, player);
+}
+
+void NormalEnemyDestroy(struct NormalEnemy* enemy)
+{
+    PistolDestroy(enemy->pistol);
+    HitboxDestroy(enemy->hitbox);
+    free(enemy);
 }

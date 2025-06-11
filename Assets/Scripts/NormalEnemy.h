@@ -14,8 +14,10 @@ struct NormalEnemy
     struct Hitbox* hitbox;
     struct Position position;
     struct Pistol* pistol;
+    struct NormalEnemy* next;
 };
 
-struct NormalEnemy* NormalEnemyCreate(unsigned char side, struct Position position);
+struct NormalEnemy* NormalEnemyCreate(unsigned char side, struct Position position, struct NormalEnemy* next);
 void NormalEnemyUpdate(struct NormalEnemy* enemy, struct Player* player);
+void NormalEnemyDestroy(struct NormalEnemy* enemy);
 #endif
