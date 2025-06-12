@@ -1,4 +1,4 @@
-SRC_FILES = Main.o Player.o Joystick.o Pistol.o Bullet.o Hitbox.o NormalEnemy.o Ground.o Item.o GameManager.o
+SRC_FILES = Main.o Player.o Joystick.o Pistol.o Bullet.o Hitbox.o NormalEnemy.o Ground.o Item.o GameManager.o Boss.o
 
 SRC_MAIN = $(addprefix Assets/Scripts/, Main.c Player.h NormalEnemy.h Item.h Ground.h GameManager.h)
 SRC_PLAYER = $(addprefix Assets/Scripts/, Player.c Player.h Utils.h)
@@ -10,6 +10,8 @@ SRC_BULLET = $(addprefix Assets/Scripts/, Bullet.c Bullet.h Hitbox.h Utils.h)
 SRC_GROUND = $(addprefix Assets/Scripts/, Ground.c Ground.h Hitbox.h Utils.h Player.h)
 SRC_ITEM = $(addprefix Assets/Scripts/, Item.c Item.h Hitbox.h Utils.h)
 SRC_MANAGER = $(addprefix Assets/Scripts/, GameManager.c GameManager.h Player.h NormalEnemy.h Item.h)
+SRC_BOSS = $(addprefix Assets/Scripts/, Boss.c Boss.h)
+
 
 LDFLAGS = $(shell pkg-config --libs allegro-5 allegro_main-5 allegro_font-5 allegro_primitives-5 allegro_image-5) 
 CFLAGS = $(shell pkg-config --cflags allegro-5 allegro_main-5 allegro_font-5 allegro_primitives-5 allegro_image-5)
@@ -47,6 +49,9 @@ Item.o: $(SRC_ITEM)
 
 GameManager.o: $(SRC_MANAGER)
 	gcc -Wall -Wextra -c Assets/Scripts/GameManager.c
+
+Boss.o: $(SRC_BOSS)
+	gcc -Wall -Wextra -c Assets/Scripts/Boss.c -lm
 
 clean:
 	rm -f *.o game

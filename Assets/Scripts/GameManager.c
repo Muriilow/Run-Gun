@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "GameManager.h"
 
-struct GameManager* GameManagerCreate(struct Player* player)
+struct GameManager* GameManagerCreate(struct Player* player, struct Boss* boss)
 {
     struct GameManager* manager = malloc(sizeof(struct GameManager));
 
@@ -11,6 +11,7 @@ struct GameManager* GameManagerCreate(struct Player* player)
     manager->normalEnemyList = NULL;
     manager->lifeItemList = NULL;
     manager->player = player;
+    manager->boss = boss;
     return manager;
 }
 
@@ -92,4 +93,6 @@ void UpdateLogic(struct GameManager* manager)
 
     for(struct Item* index = manager->lifeItemList; index != NULL; index = index->next)
         ItemUpdate(index, manager->player);
+
+    BossUpdate(manager->boss, manager->player);
 }

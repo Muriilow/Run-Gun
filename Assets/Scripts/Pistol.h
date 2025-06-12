@@ -12,6 +12,7 @@
 #define PISTOL_COOLDOWN 10
 struct Player;
 struct NormalEnemy;
+struct Boss;
 struct Pistol 
 {
     unsigned char timer;
@@ -20,6 +21,7 @@ struct Pistol
 
 void PlayerBulletUpdate(struct Player* player);
 void EnemyBulletUpdate(struct NormalEnemy* enemy, struct Player* player);
+void BossBulletUpdate(struct Boss* boss, struct Player* player);
 
 struct Pistol* PistolCreate();
 struct Bullet* PistolShot(struct Position position, struct Vector2 trajectory, float velocity, struct Pistol* gun);

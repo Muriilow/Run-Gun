@@ -8,6 +8,7 @@
 #include "Ground.h"
 #include "Item.h"
 #include "GameManager.h"
+#include "Boss.h"
 
 #define WHITE al_map_rgb(255, 255, 255)
 
@@ -88,7 +89,9 @@ int main()
     struct Position pos = {301, 100, 301, 100};
     player = PlayerCreate(20, pos, &viewport);
 
-    manager = GameManagerCreate(player);
+    struct Position posBoss = {2501, screenW/2, 2501, screenW/2};
+    struct Boss* boss = BossCreate(100, posBoss);  
+    manager = GameManagerCreate(player, boss);
 
     struct Position posEnemy1 = {1301, screenW/2, 1301, screenW/2};
     CreateNormalEnemy(manager, 20, posEnemy1);
