@@ -5,13 +5,14 @@
 #include "Player.h"
 
 
-struct Item* ItemCreate(unsigned char side, struct Position position, struct Item* next)
+struct Item* ItemCreate(unsigned char side, struct Position position, struct Item* next, unsigned char type)
 {
     struct Item* item = malloc(sizeof(struct Item));
 
     if(item == NULL)
         return NULL;
     
+    item->type = type;
     item->hasCollide = FALSE;
     item->side = side;
     item->position = position;
@@ -24,7 +25,13 @@ void CheckCollisionA(struct Item* item, struct Player* player)
 {
     if(HitboxCheck(player->hitbox, item->hitbox))
     {
-        player->health++;
+        if(item->type == HEALTH)
+            player->health++;
+
+        if(item->type == 1)
+            player->canDoubleJump++;
+
+        
         item->hasCollide = TRUE;
     }
 }

@@ -14,6 +14,6 @@ struct GameManager
 
 struct GameManager* GameManagerCreate(struct Player* player);
 void CreateNormalEnemy(struct GameManager* manager, unsigned char side, struct Position position);
-void CreateLifeItem(struct GameManager* manager, unsigned char side, struct Position position);
+void CreateLifeItem(struct GameManager* manager, unsigned char side, struct Position position, unsigned char type);
 void UpdateLogic(struct GameManager* manager);
 #endif

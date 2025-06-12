@@ -26,6 +26,7 @@ struct Player* PlayerCreate(unsigned char side, struct Position position, struct
     newPlayer->isOnGround = FALSE;
     newPlayer->isRight = FALSE;
     newPlayer->isLeft = FALSE;
+    newPlayer->canDoubleJump = FALSE;
 
     newPlayer->position = position;
 
@@ -40,6 +41,14 @@ struct Player* PlayerCreate(unsigned char side, struct Position position, struct
     return newPlayer;
 }
 
+void EnterGroundedHandler(struct Player* player)
+{
+    player->isLeft = FALSE;
+    player->isRight = FALSE;
+    player->state = CROUCHED;
+    player->hitbox->vert = HITBOX_CROUCHED;
+
+}
 void EnterRunHandler(struct Player* player)
 {
     //Can run animations or sound 
@@ -51,16 +60,49 @@ void EnterIdleHandler(struct Player* player)
     player->isLeft = FALSE;
     player->isRight = FALSE;
     player->state = IDLE;
+    player->hitbox->vert = HITBOX;
+}
+void EnterDoubleJumpHandler(struct Player* player)
+{
+    player->control->jump = 0;
+    player->state = DOUBLE_JUMP;
+    player->isOnGround = FALSE;
+    player->velocityY = player->jumpStrength;
+    //EventDoubleJumpHandler(player);
 }
 void EnterJumpHandler(struct Player* player)
 {
+    player->control->jump = 0;
     player->state = JUMPING;
     player->isOnGround = FALSE;
     player->velocityY = player->jumpStrength;
-    EventJumpHandler(player);
+    //EventJumpHandler(player);
 }
 
-void EventJumpHandler(struct Player* player)
+void EventGroundedHandler(struct Player* player)
+{
+    if(player->control->down == FALSE)
+        EnterIdleHandler(player);
+}
+void EventJumpHandler(struct Player* player, enum State state)
+{
+    if(player->isOnGround == TRUE)
+    {
+        EnterIdleHandler(player);
+        return;
+    }
+    if(player->control->jump && player->canDoubleJump)
+    {
+        EnterDoubleJumpHandler(player);
+        return;
+    }
+    if(player->control->left)
+        PlayerMove(player, 1, LEFT);
+    
+    if(player->control->right)
+        PlayerMove(player, 1, RIGHT);
+}
+void EventDoubleJumpHandler(struct Player* player)
 {
     if(player->isOnGround == TRUE)
     {
@@ -85,6 +127,11 @@ void EventRunHandler(struct Player* player, enum State state)
         EnterJumpHandler(player);
         return;
     }
+    else if(state == CROUCHED)
+    {
+        EnterGroundedHandler(player);
+        return;
+    }
 
     if(player->control->left)
         PlayerMove(player, 1, LEFT);
@@ -100,6 +147,9 @@ void EventIdleHandler(struct Player* player, enum State state)
 
     else if(state == JUMPING)
         EnterJumpHandler(player);
+
+    else if(state == CROUCHED)
+        EnterGroundedHandler(player);
 }
 
 void PlayerMove(struct Player* player, unsigned char steps, unsigned char trajectory)
@@ -169,7 +219,13 @@ void PlayerUpdateState(struct Player* player, enum State newState)
         EventRunHandler(player, newState);
 
     if(player->state == JUMPING)
-        EventJumpHandler(player);
+        EventJumpHandler(player, newState);
+
+    if(player->state == DOUBLE_JUMP)
+        EventDoubleJumpHandler(player);
+
+    if(player->state == CROUCHED)
+        EventGroundedHandler(player);
 }
 void PlayerUpdate(struct Player* player)
 {
@@ -194,13 +250,16 @@ void PlayerUpdate(struct Player* player)
 
     if(player->control->left || player->control->right)
         newState = RUN;
+    
+    if(player->control->down)
+        newState = CROUCHED;
 
     if(player->control->jump)
         newState = JUMPING;
     
     PlayerUpdateState(player, newState);
 
-    if(player->control->fire && player->pistol->timer == 0 && player->state != JUMPING)
+    if(player->control->fire && player->pistol->timer == 0)
     {
         PlayerShot(player);
         player->pistol->timer = PISTOL_COOLDOWN;

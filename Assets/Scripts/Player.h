@@ -18,12 +18,14 @@
 #define FALSE 0
 #define LEFT_CORNER 300
 #define RIGHT_CORNER 500
-
+#define HITBOX 20
+#define HITBOX_CROUCHED 10
 
 #define PLAYER_STEP 3
 
 struct Player 
 {
+    unsigned char canDoubleJump;
     unsigned char health;
     unsigned char side; //The size of my character
     unsigned char face; //Am I facing right or left?
@@ -79,7 +81,13 @@ void PlayerUpdateState(struct Player* player, enum State newState);
 void EnterRunHandler(struct Player* player);
 void EnterIdleHandler(struct Player* player);
 void EnterJumpHandler(struct Player* player);
+void EnterDoubleJumpHandler(struct Player* player);
+void EnterGroundedHandler(struct Player* player);
+
 void EventRunHandler(struct Player* player, enum State state);
 void EventIdleHandler(struct Player* player, enum State state);
-void EventJumpHandler(struct Player* player);
+void EventJumpHandler(struct Player* player, enum State state);
+void EventDoubleJumpHandler(struct Player* player);
+void EventGroundedHandler(struct Player* player);
+
 #endif

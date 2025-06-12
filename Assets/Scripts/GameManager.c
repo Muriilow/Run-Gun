@@ -14,9 +14,9 @@ struct GameManager* GameManagerCreate(struct Player* player)
     return manager;
 }
 
-void CreateLifeItem(struct GameManager* manager, unsigned char side, struct Position position)
+void CreateLifeItem(struct GameManager* manager, unsigned char side, struct Position position, unsigned char type)
 {
-    struct Item* item = ItemCreate(side, position, manager->lifeItemList);
+    struct Item* item = ItemCreate(side, position, manager->lifeItemList, type);
 
     if(item != NULL)
         manager->lifeItemList = item;

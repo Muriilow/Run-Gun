@@ -28,7 +28,8 @@ void InputControl(ALLEGRO_EVENT event, struct Player* player)
             JoystickActivate(player->control, DOWN);
             break;
         case ALLEGRO_KEY_SPACE:
-            JoystickActivate(player->control, JUMP);
+            if(event.type == ALLEGRO_EVENT_KEY_DOWN)
+                JoystickActivate(player->control, JUMP);
             break;
         case ALLEGRO_KEY_ENTER:
             JoystickActivate(player->control, FIRE);
@@ -97,7 +98,7 @@ int main()
     CreateNormalEnemy(manager, 20, posEnemy3);
 
     struct Position posItem = {501, screenW/2, 501, screenW/2};
-    CreateLifeItem(manager, 10, posItem);
+    CreateLifeItem(manager, 10, posItem, 1);
 
     al_start_timer(timer);
 

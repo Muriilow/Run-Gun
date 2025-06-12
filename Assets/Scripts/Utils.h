@@ -31,6 +31,7 @@ enum State
     RUN,
     JUMPING,
     DOUBLE_JUMP,
+    CROUCHED, 
 };
 enum Entities
 {
