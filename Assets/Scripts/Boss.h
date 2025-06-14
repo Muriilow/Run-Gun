@@ -11,6 +11,8 @@
 #define POWER_WIDTH 50
 struct Power
 {
+    unsigned short lineTimer;
+    unsigned char isFixed;
     unsigned char isActive;
     unsigned short timer;
     short timerToLive;

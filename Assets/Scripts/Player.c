@@ -1,9 +1,13 @@
 #include <stdlib.h>
-#include <allegro5/allegro5.h>
-#include <allegro5/allegro_primitives.h>
+#include <stdio.h>
 #include "Player.h"
 
-struct Player* PlayerCreate(unsigned char side, struct Position position, struct Viewport* viewport)
+#include <allegro5/allegro5.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_image.h>
+
+struct Player* PlayerCreate(unsigned char side, struct Position position, struct Viewport* viewport, ALLEGRO_BITMAP* sprite)
 {
     struct Player* newPlayer;
     unsigned char boundariesX;
@@ -28,8 +32,10 @@ struct Player* PlayerCreate(unsigned char side, struct Position position, struct
     newPlayer->isLeft = FALSE;
     newPlayer->canDoubleJump = FALSE;
     newPlayer->invencibility = INV_FRAME;
-
+    newPlayer->spriteWalking = sprite;
     newPlayer->position = position;
+    newPlayer->currentFrame = 0;
+    newPlayer->animationTime = 0;
 
     newPlayer->velocityY = 0;
     newPlayer->jumpStrength = -10;
@@ -276,10 +282,30 @@ void PlayerUpdate(struct Player* player)
 
     /*Drawing the player and bullets*/
     //HitboxDraw(player->hitbox, player);
-    al_draw_filled_rectangle((player->position.x - size) + player->viewport->x,
-        (player->position.y - size) + player->viewport->y, 
-        (player->position.x + size) + player->viewport->x,
-        (player->position.y + size) + player->viewport->y, al_map_rgb(255, 0, 0));
+    player->animationTime++;
+    if(player->animationTime >= FRAME_DELAY)
+    {
+        player->animationTime = 0;
+        player->currentFrame++;
+
+        if(player->currentFrame > FRAME_NUMBER)
+            player->currentFrame = 0;
+
+    }
+    al_draw_bitmap_region(player->spriteWalking,
+                          player->currentFrame*FRAME_SIZE,
+                          0,
+                          FRAME_SIZE,
+                          FRAME_SIZE,
+                          player->position.x + player->viewport->x,
+                          player->position.y + player->viewport->y,
+                          0);
+
+    fprintf(stderr, "%f\n" ,player->viewport->offsetX);
+    //al_draw_filled_rectangle((player->position.x - size) + player->viewport->x,
+    //    (player->position.y - size) + player->viewport->y, 
+    //    (player->position.x + size) + player->viewport->x,
+    //    (player->position.y + size) + player->viewport->y, al_map_rgb(255, 0, 0));
 
 }
 

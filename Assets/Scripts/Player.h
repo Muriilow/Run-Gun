@@ -1,6 +1,5 @@
 #ifndef __PLAYER__
 #define __PLAYER__
-
 #include "Hitbox.h"
 #include "Joystick.h"
 #include "Pistol.h"
@@ -21,9 +20,16 @@
 #define HITBOX 20
 #define HITBOX_CROUCHED 10
 
+#define FRAME_SIZE 256
+#define FRAME_NUMBER 8
+#define FRAME_DELAY 5
+
 #define PLAYER_STEP 3
 struct Player 
 {
+    unsigned char currentFrame;
+    unsigned char animationTime;
+    ALLEGRO_BITMAP* spriteWalking;
     unsigned char canDoubleJump;
     unsigned char health;
     unsigned char side; //The size of my character
@@ -49,7 +55,7 @@ struct Player
  * Returns the pointer of the player
 */
 
-struct Player* PlayerCreate(unsigned char side, struct Position position, struct Viewport* viewport);
+struct Player* PlayerCreate(unsigned char side, struct Position position, struct Viewport* viewport, ALLEGRO_BITMAP* sprite);
 
 /* Moves the character
  * player = The pointer to the player struct

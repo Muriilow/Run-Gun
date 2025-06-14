@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "GameManager.h"
 
 struct GameManager* GameManagerCreate(struct Player* player, struct Boss* boss)
@@ -11,6 +12,10 @@ struct GameManager* GameManagerCreate(struct Player* player, struct Boss* boss)
     manager->normalEnemyList = NULL;
     manager->lifeItemList = NULL;
     manager->player = player;
+
+    if(player==NULL)
+        fprintf(stderr, "erro no player\n");
+
     manager->boss = boss;
     return manager;
 }

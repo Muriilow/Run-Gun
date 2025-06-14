@@ -12,9 +12,11 @@ struct Power* PowerCreate(int side, struct Position position)
     if(power == NULL)
         return NULL;
 
+    power->isFixed = FALSE;
     power->isActive = FALSE;
     power->timerToLive = POWER_COOLDOWN_BOSS;
     power->timer = POWER_COOLDOWN_BOSS;
+    power->lineTimer = POWER_COOLDOWN_BOSS - 200;
     power->position = position;
     power->hitbox = HitboxCreate(10000, side, position.x, position.y);
 
@@ -65,11 +67,9 @@ void CheckDistanceBoss(struct Boss* boss, struct Player* player)
         boss->pistol->timer = PISTOL_COOLDOWN_BOSS;
         BossShot(boss, player);
     }
-    if(distance < 400 && boss->power->timer == 0)
+    if(distance < 400 && boss->power->timer == 0 && boss->power->isFixed == FALSE)
     {
-        boss->power->isActive = TRUE;
-        boss->power->timer = POWER_COOLDOWN_BOSS;
-        boss->power->timerToLive = POWER_COOLDOWN_BOSS;
+        boss->power->isFixed = TRUE;
         struct Position pos = {player->position.x, 0, player->position.worldX, 0};
         boss->power->position = pos;
         boss->power->hitbox->x = pos.worldX;
@@ -141,12 +141,34 @@ void CheckCollisionBoss(struct Boss* boss, struct Player* player)
 }
 void BossPowerUpdate(struct Boss* boss, struct Player* player)
 {
+    if(boss->power->timerToLive <= 0)
+        boss->power->isActive = FALSE;
+    
+    if(boss->power->timer)
+        boss->power->timer--;
+
+    if(boss->power != NULL && boss->power->timer == 0)
+    {
+        al_draw_line(boss->power->hitbox->x -player->viewport->offsetX,
+                     boss->power->hitbox->y + boss->power->hitbox->vert/2 -player->viewport->offsetY,
+                     boss->power->hitbox->x -player->viewport->offsetX,
+                     boss->power->hitbox->y - boss->power->hitbox->vert/2 -player->viewport->offsetY,
+                     al_map_rgb(0, 255, 0), 10);
+
+        boss->power->lineTimer--;
+    }
+
+    if(boss->power->lineTimer == 0)
+    {
+        boss->power->isFixed = FALSE;
+        boss->power->isActive = TRUE;
+        boss->power->timer = POWER_COOLDOWN_BOSS;
+        boss->power->timerToLive = POWER_COOLDOWN_BOSS;
+        boss->power->lineTimer = POWER_COOLDOWN_BOSS - 200;
+    }
 
     if(boss->power->isActive == TRUE)
     {
-        short vertSize = boss->power->hitbox->vert/2;
-        short horSize = boss->power->hitbox->hor/2;
-
         if(HitboxCheck(boss->power->hitbox, player->hitbox) && player->invencibility == 0)
         {
             player->invencibility = INV_FRAME;
@@ -155,11 +177,7 @@ void BossPowerUpdate(struct Boss* boss, struct Player* player)
 
         boss->power->timerToLive--;
 
-        //HitboxDraw(boss->power->hitbox, player);
-        al_draw_line(boss->power->hitbox->x - horSize - player->viewport->offsetX,
-                     boss->power->position.worldY - vertSize - player->viewport->offsetY,
-                     boss->power->position.worldX + horSize - player->viewport->offsetX,
-                     boss->power->position.worldY + vertSize - player->viewport->offsetY, al_map_rgb(127, 0, 0), POWER_WIDTH);
+        HitboxDraw(boss->power->hitbox, player);
     }
 
 }
@@ -173,11 +191,6 @@ void BossUpdate(struct Boss* boss, struct Player* player)
     if(boss->pistol != NULL && boss->pistol->timer)
         boss->pistol->timer--;
     
-    if(boss->power->timerToLive <= 0)
-        boss->power->isActive = FALSE;
-
-    if(boss->power != NULL && boss->power->timer)
-        boss->power->timer--;
 
     /* If boss died */
     if(boss->health == 0)

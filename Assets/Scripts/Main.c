@@ -58,11 +58,9 @@ int main()
     ALLEGRO_EVENT_QUEUE* queue; 
     ALLEGRO_FONT* font; 
     ALLEGRO_EVENT event;
-    struct Item* item;
     struct Player* player;
-    struct Ground* ground;
     struct GameManager* manager;
-    int screenW, screenH, imgW, imgH;
+    int screenW, screenH, imgW;
 
 
     timer = al_create_timer(1.0 / 60.0);
@@ -76,9 +74,13 @@ int main()
 
     //Creating a screen with the correct display size
     ALLEGRO_DISPLAY* display = al_create_display(screenW, screenH);
-    ALLEGRO_BITMAP *background = al_load_bitmap("Assets/background.jpg");
+    ALLEGRO_BITMAP *background = al_load_bitmap("Assets/Sprites/background.jpg");
+    ALLEGRO_BITMAP *playerMove = al_load_bitmap("Assets/Sprites/playerMove.png");
+    
+    if(playerMove == NULL)
+        fprintf(stderr, "deu ruim");
+
     imgW = al_get_bitmap_width(background);
-    imgH = al_get_bitmap_height(background);
 
     //Any keyboard, screen or timer events will be inserted in our queue
     al_register_event_source(queue, al_get_keyboard_event_source());
@@ -87,7 +89,7 @@ int main()
     
     struct Viewport viewport = {0, 0, 0, 0, screenW, screenH};
     struct Position pos = {301, 100, 301, 100};
-    player = PlayerCreate(20, pos, &viewport);
+    player = PlayerCreate(20, pos, &viewport, playerMove);
 
     struct Position posBoss = {2501, screenW/2, 2501, screenW/2};
     struct Boss* boss = BossCreate(100, posBoss);  
@@ -123,7 +125,7 @@ int main()
 
             BackgroundUpdate(background, imgW, xAxis);
             PlayerUpdate(player);
-            UpdateLogic(manager);  
+            //UpdateLogic(manager);  
 
             al_draw_textf(font, WHITE, 10, 10, ALLEGRO_ALIGN_LEFT, "STATE: %d", player->state);
             al_draw_textf(font, WHITE, 10, 100, ALLEGRO_ALIGN_LEFT, "HEALTH: %d", player->health);
@@ -150,6 +152,7 @@ int main()
     }
 
     al_destroy_bitmap(background);
+    al_destroy_bitmap(playerMove);
     al_destroy_font(font);
     al_destroy_display(display);
     al_destroy_timer(timer);
