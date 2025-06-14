@@ -93,6 +93,7 @@ void UpdateLogic(struct GameManager* manager)
 
     for(struct Item* index = manager->lifeItemList; index != NULL; index = index->next)
         ItemUpdate(index, manager->player);
-
-    BossUpdate(manager->boss, manager->player);
+    
+    if(manager->normalEnemyList == NULL)
+        BossUpdate(manager->boss, manager->player);
 }

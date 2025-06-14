@@ -22,7 +22,6 @@
 #define HITBOX_CROUCHED 10
 
 #define PLAYER_STEP 3
-
 struct Player 
 {
     unsigned char canDoubleJump;
@@ -32,6 +31,7 @@ struct Player
     unsigned char isOnGround;
     unsigned char isLeft; //Am I at the left corner of the camera
     unsigned char isRight; //Am I at the right corner of the camera
+    unsigned short invencibility;
     struct Position position;
     char jumpStrength;
     float velocityY;

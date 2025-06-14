@@ -4,7 +4,7 @@ SRC_MAIN = $(addprefix Assets/Scripts/, Main.c Player.h NormalEnemy.h Item.h Gro
 SRC_PLAYER = $(addprefix Assets/Scripts/, Player.c Player.h Utils.h)
 SRC_ENEMY = $(addprefix Assets/Scripts/, NormalEnemy.c NormalEnemy.h Hitbox.h Utils.h)
 SRC_JOYSTICK = $(addprefix Assets/Scripts/, Joystick.c Joystick.h)
-SRC_HITBOX = $(addprefix Assets/Scripts/, Hitbox.c Hitbox.h)
+SRC_HITBOX = $(addprefix Assets/Scripts/, Hitbox.c Hitbox.h Player.h)
 SRC_PISTOL = $(addprefix Assets/Scripts/, Pistol.c Pistol.h Utils.h)
 SRC_BULLET = $(addprefix Assets/Scripts/, Bullet.c Bullet.h Hitbox.h Utils.h)
 SRC_GROUND = $(addprefix Assets/Scripts/, Ground.c Ground.h Hitbox.h Utils.h Player.h)
@@ -33,7 +33,7 @@ Joystick.o: $(SRC_JOYSTICK)
 	gcc -Wall -Wextra -c Assets/Scripts/Joystick.c
 
 Hitbox.o: $(SRC_HITBOX)
-	gcc -Wall -Wextra -c Assets/Scripts/Hitbox.c
+	gcc -Wall -Wextra $(CPRIM) -c Assets/Scripts/Hitbox.c
 
 Pistol.o: $(SRC_PISTOL)
 	gcc -Wall -Wextra -c Assets/Scripts/Pistol.c
@@ -51,7 +51,7 @@ GameManager.o: $(SRC_MANAGER)
 	gcc -Wall -Wextra -c Assets/Scripts/GameManager.c
 
 Boss.o: $(SRC_BOSS)
-	gcc -Wall -Wextra -c Assets/Scripts/Boss.c -lm
+	gcc -Wall -Wextra $(CPRIM) -c Assets/Scripts/Boss.c -lm
 
 clean:
 	rm -f *.o game

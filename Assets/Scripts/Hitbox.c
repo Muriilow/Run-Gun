@@ -1,6 +1,8 @@
 #include <stdlib.h>
+#include <allegro5/allegro5.h>
+#include <allegro5/allegro_primitives.h>
 #include "Hitbox.h"
-
+#include "Player.h"
 struct Hitbox* HitboxCreate(unsigned short vert, unsigned short hor, float x, float y)
 {
    struct Hitbox* box = malloc(sizeof(struct Hitbox));
@@ -13,6 +15,17 @@ struct Hitbox* HitboxCreate(unsigned short vert, unsigned short hor, float x, fl
    return box;
 }
 
+void HitboxDraw(struct Hitbox* box, struct Player* player)
+{
+    short vertSize = box->vert/2;
+    short horSize = box->hor/2;
+
+    al_draw_filled_rectangle((box->x - horSize) - player->viewport->offsetX,
+        (box->y - vertSize) - player->viewport->offsetY, 
+        (box->x + horSize) - player->viewport->offsetX,
+        (box->y + vertSize) - player->viewport->offsetY,
+        al_map_rgb(255, 0, 0));
+}
 unsigned char HitboxCheck(struct Hitbox* box1, struct Hitbox* box2)
 {
     int top1 = box1->y + box1->vert/2;

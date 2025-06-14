@@ -4,12 +4,13 @@
 #define TRUE 1
 #define FALSE 0
 
+#define INV_FRAME 30
 struct Position
 {
     short x;
     short y;
-    unsigned int worldX;
-    unsigned int worldY;
+    int worldX;
+    int worldY;
 };
 struct Viewport
 {

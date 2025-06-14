@@ -27,6 +27,7 @@ struct Player* PlayerCreate(unsigned char side, struct Position position, struct
     newPlayer->isRight = FALSE;
     newPlayer->isLeft = FALSE;
     newPlayer->canDoubleJump = FALSE;
+    newPlayer->invencibility = INV_FRAME;
 
     newPlayer->position = position;
 
@@ -237,6 +238,9 @@ void PlayerUpdate(struct Player* player)
     player->hitbox->y = player->position.worldY;
     player->hitbox->x = player->position.worldX;
 
+    if(player->invencibility > 0)
+        player->invencibility--;
+
     if(player->isOnGround == FALSE)
         player->velocityY += GRAVITY;
 
@@ -271,6 +275,7 @@ void PlayerUpdate(struct Player* player)
         player->pistol->timer--;
 
     /*Drawing the player and bullets*/
+    //HitboxDraw(player->hitbox, player);
     al_draw_filled_rectangle((player->position.x - size) + player->viewport->x,
         (player->position.y - size) + player->viewport->y, 
         (player->position.x + size) + player->viewport->x,
