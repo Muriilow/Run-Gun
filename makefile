@@ -36,10 +36,10 @@ Hitbox.o: $(SRC_HITBOX)
 	gcc -Wall -Wextra $(CPRIM) -c Assets/Scripts/Hitbox.c
 
 Pistol.o: $(SRC_PISTOL)
-	gcc -Wall -Wextra -c Assets/Scripts/Pistol.c
+	gcc -Wall -Wextra $(CPRIM) -c Assets/Scripts/Pistol.c
 
 Bullet.o: $(SRC_BULLET)
-	gcc -Wall -Wextra $(CPRIM) -c Assets/Scripts/Bullet.c
+	gcc -Wall -Wextra -c Assets/Scripts/Bullet.c
 
 Ground.o: $(SRC_GROUND)
 	gcc -Wall -Wextra $(CPRIM) -c Assets/Scripts/Ground.c

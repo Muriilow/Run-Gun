@@ -3,6 +3,7 @@
 #include <math.h>
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_image.h>
 #include "NormalEnemy.h"
 
 struct NormalEnemy* NormalEnemyCreate(unsigned char side, struct Position position, struct NormalEnemy* next)

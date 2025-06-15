@@ -7,8 +7,6 @@
 #define LEFT 0 
 #define RIGHT 1
 
-#include <allegro5/allegro5.h>
-#include <allegro5/allegro_primitives.h>
 #include "Hitbox.h"
 #include "Utils.h"
 

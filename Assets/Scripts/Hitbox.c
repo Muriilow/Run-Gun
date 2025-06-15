@@ -1,5 +1,7 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <allegro5/allegro5.h>
+#include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
 #include "Hitbox.h"
 #include "Player.h"
@@ -28,6 +30,8 @@ void HitboxDraw(struct Hitbox* box, struct Player* player)
 }
 unsigned char HitboxCheck(struct Hitbox* box1, struct Hitbox* box2)
 {
+    if(box1 == NULL || box2 == NULL)
+        fprintf(stderr, "Error checking hitbox\n");
     int top1 = box1->y + box1->vert/2;
     int top2 = box2->y + box2->vert/2;
     

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_image.h>
 #include "Item.h"
 #include "Player.h"
 
@@ -45,6 +46,7 @@ void ItemUpdate(struct Item* item, struct Player* player)
     item->hitbox->x = item->position.worldX;
     item->hitbox->y = item->position.worldY;
 
+    HitboxDraw(item->hitbox, player);
     al_draw_filled_rectangle(item->position.x - size, item->position.y - size,
         item->position.x + size, item->position.y + size, al_map_rgb(0, 255, 0));
 

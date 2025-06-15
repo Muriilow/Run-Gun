@@ -17,11 +17,11 @@
 #define FALSE 0
 #define LEFT_CORNER 300
 #define RIGHT_CORNER 500
-#define HITBOX 20
-#define HITBOX_CROUCHED 10
+#define HITBOX 100
+#define HITBOX_CROUCHED 50
 
 #define FRAME_SIZE 256
-#define FRAME_NUMBER 8
+#define FRAME_NUMBER 7
 #define FRAME_DELAY 5
 
 #define PLAYER_STEP 3
@@ -29,7 +29,6 @@ struct Player
 {
     unsigned char currentFrame;
     unsigned char animationTime;
-    ALLEGRO_BITMAP* spriteWalking;
     unsigned char canDoubleJump;
     unsigned char health;
     unsigned char side; //The size of my character
@@ -41,6 +40,7 @@ struct Player
     struct Position position;
     char jumpStrength;
     float velocityY;
+    ALLEGRO_BITMAP* spriteWalking;
     struct Viewport* viewport;
     struct Joystick* control;
     struct Pistol* pistol;

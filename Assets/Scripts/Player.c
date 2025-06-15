@@ -10,14 +10,6 @@
 struct Player* PlayerCreate(unsigned char side, struct Position position, struct Viewport* viewport, ALLEGRO_BITMAP* sprite)
 {
     struct Player* newPlayer;
-    unsigned char boundariesX;
-    unsigned char boundariesY;
-
-    boundariesX = (position.x - side/2 < 0) || (position.x + side/2 > viewport->width);
-    boundariesY = (position.y - side/1 < 0) || (position.y + side/2 > viewport->height);
-
-    if(boundariesX || boundariesY)
-        return NULL;
 
     newPlayer = malloc(sizeof(struct Player));
 
@@ -39,7 +31,7 @@ struct Player* PlayerCreate(unsigned char side, struct Position position, struct
 
     newPlayer->velocityY = 0;
     newPlayer->jumpStrength = -10;
-    newPlayer->hitbox = HitboxCreate(side, side, position.x, position.y);
+    newPlayer->hitbox = HitboxCreate(side, side, position.x + 50, position.y + 50);
     newPlayer->control = JoystickCreate();
     newPlayer->pistol = PistolCreate();
     newPlayer->viewport = viewport;
@@ -234,6 +226,57 @@ void PlayerUpdateState(struct Player* player, enum State newState)
     if(player->state == CROUCHED)
         EventGroundedHandler(player);
 }
+
+void PlayerDraw(struct Player* player)
+{
+        //HitboxDraw(player->hitbox, player);
+    int posX = player->position.x - 50 + player->viewport->x;
+    int posY = player->position.y - 50 + player->viewport->y;
+
+    if(player->state == IDLE && player->control->fire)
+    {
+        al_draw_scaled_bitmap(player->spriteWalking,
+                  1*FRAME_SIZE, 0, FRAME_SIZE, FRAME_SIZE, posX, posY, 100, 100, 1 ^ player->face);
+    }
+    else if(player->state == IDLE)
+    {
+        al_draw_scaled_bitmap(player->spriteWalking,
+                  8*FRAME_SIZE, 0, FRAME_SIZE, FRAME_SIZE, posX, posY, 100, 100, 1 ^ player->face);
+    }
+    
+    if(player->state == RUN)
+    {
+        /*Drawing the player and bullets*/
+        player->animationTime++;
+        if(player->animationTime >= FRAME_DELAY)
+        {
+            player->animationTime = 0;
+            player->currentFrame++;
+
+            if(player->currentFrame > FRAME_NUMBER)
+                player->currentFrame = 0;
+
+        }
+
+        al_draw_scaled_bitmap(player->spriteWalking,player->currentFrame*FRAME_SIZE,
+                    0, FRAME_SIZE,FRAME_SIZE, posX, posY, 100, 100, 1 ^ player->face);
+    }
+
+    if(player->state == JUMPING || player->state == DOUBLE_JUMP)
+    {
+        if(player->velocityY < 0)
+        {
+            al_draw_scaled_bitmap(player->spriteWalking,
+                      9*FRAME_SIZE, 0, FRAME_SIZE, FRAME_SIZE, posX, posY, 100, 100, 1 ^ player->face);
+        }
+        else
+        {
+            al_draw_scaled_bitmap(player->spriteWalking,
+                      10*FRAME_SIZE, 0, FRAME_SIZE, FRAME_SIZE, posX, posY, 100, 100, 1 ^ player->face);
+
+        }
+    }
+}
 void PlayerUpdate(struct Player* player)
 {
     unsigned char size = player->side/2;
@@ -269,7 +312,7 @@ void PlayerUpdate(struct Player* player)
     
     PlayerUpdateState(player, newState);
 
-    if(player->control->fire && player->pistol->timer == 0)
+    if(player->control->fire && player->pistol->timer == 0 && player->state != JUMPING && player->state != DOUBLE_JUMP)
     {
         PlayerShot(player);
         player->pistol->timer = PISTOL_COOLDOWN;
@@ -280,33 +323,8 @@ void PlayerUpdate(struct Player* player)
     if(player->pistol->timer)
         player->pistol->timer--;
 
-    /*Drawing the player and bullets*/
-    //HitboxDraw(player->hitbox, player);
-    player->animationTime++;
-    if(player->animationTime >= FRAME_DELAY)
-    {
-        player->animationTime = 0;
-        player->currentFrame++;
 
-        if(player->currentFrame > FRAME_NUMBER)
-            player->currentFrame = 0;
-
-    }
-    al_draw_bitmap_region(player->spriteWalking,
-                          player->currentFrame*FRAME_SIZE,
-                          0,
-                          FRAME_SIZE,
-                          FRAME_SIZE,
-                          player->position.x + player->viewport->x,
-                          player->position.y + player->viewport->y,
-                          0);
-
-    fprintf(stderr, "%f\n" ,player->viewport->offsetX);
-    //al_draw_filled_rectangle((player->position.x - size) + player->viewport->x,
-    //    (player->position.y - size) + player->viewport->y, 
-    //    (player->position.x + size) + player->viewport->x,
-    //    (player->position.y + size) + player->viewport->y, al_map_rgb(255, 0, 0));
-
+    PlayerDraw(player);
 }
 
 void PlayerDestroy(struct Player* player)

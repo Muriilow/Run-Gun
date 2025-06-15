@@ -89,7 +89,7 @@ int main()
     
     struct Viewport viewport = {0, 0, 0, 0, screenW, screenH};
     struct Position pos = {301, 100, 301, 100};
-    player = PlayerCreate(20, pos, &viewport, playerMove);
+    player = PlayerCreate(100, pos, &viewport, playerMove);
 
     struct Position posBoss = {2501, screenW/2, 2501, screenW/2};
     struct Boss* boss = BossCreate(100, posBoss);  
@@ -125,7 +125,7 @@ int main()
 
             BackgroundUpdate(background, imgW, xAxis);
             PlayerUpdate(player);
-            //UpdateLogic(manager);  
+            UpdateLogic(manager);  
 
             al_draw_textf(font, WHITE, 10, 10, ALLEGRO_ALIGN_LEFT, "STATE: %d", player->state);
             al_draw_textf(font, WHITE, 10, 100, ALLEGRO_ALIGN_LEFT, "HEALTH: %d", player->health);
@@ -139,8 +139,9 @@ int main()
             al_draw_textf(font, WHITE, 10, 70, ALLEGRO_ALIGN_LEFT, "isLeft: %d", player->isLeft);
             al_draw_textf(font, WHITE, 10, 80, ALLEGRO_ALIGN_LEFT, "isRight: %d", player->isRight);
             al_draw_textf(font, WHITE, 10, 90, ALLEGRO_ALIGN_LEFT, "velocityY: %f", player->velocityY);
-            al_draw_textf(font, WHITE, 200, 30, ALLEGRO_ALIGN_LEFT, "Xviewport: %f", viewport.offsetX);
-            al_draw_textf(font, WHITE, 200, 40, ALLEGRO_ALIGN_LEFT, "Yviewport: %f", viewport.offsetY);
+            al_draw_textf(font, WHITE, 200, 30, ALLEGRO_ALIGN_LEFT, "Xviewport: %f", player->viewport->offsetX);
+            al_draw_textf(font, WHITE, 200, 40, ALLEGRO_ALIGN_LEFT, "Yviewport: %f", player->viewport->offsetY);
+            al_draw_textf(font, WHITE, 200, 50, ALLEGRO_ALIGN_LEFT, "Player-Fire: %d", player->control->fire);
 
             al_flip_display();
         }
