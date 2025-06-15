@@ -36,7 +36,7 @@ struct Boss* BossCreate(unsigned char side, struct Position position)
     boss->side = side;
     boss->position = position;
     boss->hitbox = HitboxCreate(side, side, position.x, position.y);
-    boss->pistol = PistolCreate();
+    boss->pistol = PistolCreate(PISTOL_COOLDOWN_BOSS, NULL, 10);
 
     struct Position powerPos = {-10000, -10000, -10000, -10000};
     boss->power = PowerCreate(POWER_WIDTH, powerPos);
@@ -65,7 +65,7 @@ void CheckDistanceBoss(struct Boss* boss, struct Player* player)
     
     if(distance < 200 && boss->pistol->timer == 0)
     {
-        boss->pistol->timer = PISTOL_COOLDOWN_BOSS;
+        boss->pistol->timer = boss->pistol->cooldown;
         BossShot(boss, player);
     }
     if(distance < 400 && boss->power->timer == 0 && boss->power->isFixed == FALSE)

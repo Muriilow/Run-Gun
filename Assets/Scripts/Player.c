@@ -2,12 +2,7 @@
 #include <stdio.h>
 #include "Player.h"
 
-#include <allegro5/allegro5.h>
-#include <allegro5/allegro_font.h>
-#include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_image.h>
-
-struct Player* PlayerCreate(unsigned char side, struct Position position, struct Viewport* viewport, ALLEGRO_BITMAP* sprite)
+struct Player* PlayerCreate(unsigned char side, struct Position position, struct Viewport* viewport, ALLEGRO_BITMAP* sprite, ALLEGRO_BITMAP* bullet)
 {
     struct Player* newPlayer;
 
@@ -25,15 +20,16 @@ struct Player* PlayerCreate(unsigned char side, struct Position position, struct
     newPlayer->canDoubleJump = FALSE;
     newPlayer->invencibility = INV_FRAME;
     newPlayer->spriteWalking = sprite;
+    newPlayer->spriteBullet = bullet;
     newPlayer->position = position;
     newPlayer->currentFrame = 0;
     newPlayer->animationTime = 0;
 
     newPlayer->velocityY = 0;
-    newPlayer->jumpStrength = -10;
+    newPlayer->jumpStrength = -15;
     newPlayer->hitbox = HitboxCreate(side, side, position.x + 50, position.y + 50);
     newPlayer->control = JoystickCreate();
-    newPlayer->pistol = PistolCreate();
+    newPlayer->pistol = PistolCreate(PISTOL_COOLDOWN_PLAYER, bullet, 40);
     newPlayer->viewport = viewport;
     newPlayer->state = IDLE;
 
@@ -276,6 +272,19 @@ void PlayerDraw(struct Player* player)
 
         }
     }
+    if(player->state == CROUCHED)
+    {
+        if(player->control->fire)
+        {
+            al_draw_scaled_bitmap(player->spriteWalking,
+                      11*FRAME_SIZE, 0, FRAME_SIZE, FRAME_SIZE, posX, posY, 100, 100, 1 ^ player->face);
+        }
+        else
+        {
+            al_draw_scaled_bitmap(player->spriteWalking,
+                      12*FRAME_SIZE, 0, FRAME_SIZE, FRAME_SIZE, posX, posY, 100, 100, 1 ^ player->face);
+        }
+    }
 }
 void PlayerUpdate(struct Player* player)
 {
@@ -315,7 +324,7 @@ void PlayerUpdate(struct Player* player)
     if(player->control->fire && player->pistol->timer == 0 && player->state != JUMPING && player->state != DOUBLE_JUMP)
     {
         PlayerShot(player);
-        player->pistol->timer = PISTOL_COOLDOWN;
+        player->pistol->timer = player->pistol->cooldown;
     }
 
     PlayerBulletUpdate(player);

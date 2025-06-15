@@ -2,6 +2,10 @@
 #define __NORMAL_EN__
 
 #define PISTOL_COOLDOWN_ENEMY 20
+
+#include <allegro5/allegro5.h>
+#include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_image.h>
 #include "Hitbox.h"
 #include "Pistol.h"
 #include "Player.h"
@@ -9,6 +13,8 @@
 
 struct NormalEnemy
 {
+    ALLEGRO_BITMAP* sprite;
+    ALLEGRO_BITMAP* spriteBullet;
     unsigned char health;
     unsigned char side;
     struct Hitbox* hitbox;
@@ -17,7 +23,7 @@ struct NormalEnemy
     struct NormalEnemy* next;
 };
 
-struct NormalEnemy* NormalEnemyCreate(unsigned char side, struct Position position, struct NormalEnemy* next);
+struct NormalEnemy* NormalEnemyCreate(unsigned char vert, unsigned char hor, struct Position position, struct NormalEnemy* next, ALLEGRO_BITMAP* sprite, ALLEGRO_BITMAP* bullet);
 void NormalEnemyUpdate(struct NormalEnemy* enemy, struct Player* player);
 void NormalEnemyDestroy(struct NormalEnemy* enemy);
 #endif

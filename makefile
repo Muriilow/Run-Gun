@@ -30,7 +30,7 @@ NormalEnemy.o: $(SRC_ENEMY)
 	gcc -Wall -Wextra $(CPRIM) -c Assets/Scripts/NormalEnemy.c
 
 Joystick.o: $(SRC_JOYSTICK) 
-	gcc -Wall -Wextra -c Assets/Scripts/Joystick.c
+	gcc -Wall -Wextra  -c Assets/Scripts/Joystick.c
 
 Hitbox.o: $(SRC_HITBOX)
 	gcc -Wall -Wextra $(CPRIM) -c Assets/Scripts/Hitbox.c
@@ -39,7 +39,7 @@ Pistol.o: $(SRC_PISTOL)
 	gcc -Wall -Wextra $(CPRIM) -c Assets/Scripts/Pistol.c
 
 Bullet.o: $(SRC_BULLET)
-	gcc -Wall -Wextra -c Assets/Scripts/Bullet.c
+	gcc -Wall -Wextra $(CPRIM) -c Assets/Scripts/Bullet.c
 
 Ground.o: $(SRC_GROUND)
 	gcc -Wall -Wextra $(CPRIM) -c Assets/Scripts/Ground.c
@@ -48,7 +48,7 @@ Item.o: $(SRC_ITEM)
 	gcc -Wall -Wextra $(CPRIM) -c Assets/Scripts/Item.c
 
 GameManager.o: $(SRC_MANAGER)
-	gcc -Wall -Wextra -c Assets/Scripts/GameManager.c
+	gcc -Wall -Wextra $(CPRIM) -c Assets/Scripts/GameManager.c
 
 Boss.o: $(SRC_BOSS)
 	gcc -Wall -Wextra $(CPRIM) -c Assets/Scripts/Boss.c -lm

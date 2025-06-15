@@ -76,6 +76,9 @@ int main()
     ALLEGRO_DISPLAY* display = al_create_display(screenW, screenH);
     ALLEGRO_BITMAP *background = al_load_bitmap("Assets/Sprites/background.jpg");
     ALLEGRO_BITMAP *playerMove = al_load_bitmap("Assets/Sprites/playerMove.png");
+    ALLEGRO_BITMAP *playerBullet = al_load_bitmap("Assets/Sprites/bulletPlayer.png");
+    ALLEGRO_BITMAP *enemySprite = al_load_bitmap("Assets/Sprites/normalEnemy.png");
+    ALLEGRO_BITMAP *enemyBullet = al_load_bitmap("Assets/Sprites/bulletEnemy.png");
     
     if(playerMove == NULL)
         fprintf(stderr, "deu ruim");
@@ -89,18 +92,18 @@ int main()
     
     struct Viewport viewport = {0, 0, 0, 0, screenW, screenH};
     struct Position pos = {301, 100, 301, 100};
-    player = PlayerCreate(100, pos, &viewport, playerMove);
+    player = PlayerCreate(100, pos, &viewport, playerMove, playerBullet);
 
     struct Position posBoss = {2501, screenW/2, 2501, screenW/2};
     struct Boss* boss = BossCreate(100, posBoss);  
     manager = GameManagerCreate(player, boss);
 
-    struct Position posEnemy1 = {1301, screenW/2, 1301, screenW/2};
-    CreateNormalEnemy(manager, 20, posEnemy1);
-    struct Position posEnemy2 = {1601, screenW/2, 1601, screenW/2}; 
-    CreateNormalEnemy(manager, 20, posEnemy2);
-    struct Position posEnemy3 = {2001, screenW/2, 2001, screenW/2};
-    CreateNormalEnemy(manager, 20, posEnemy3);
+    struct Position posEnemy1 = {1301, screenH - 125, 1301, screenH - 125};
+    CreateNormalEnemy(manager, posEnemy1, enemySprite, enemyBullet);
+    struct Position posEnemy2 = {1601, screenH - 125, 1601, screenH - 125}; 
+    CreateNormalEnemy(manager, posEnemy2, enemySprite, enemyBullet);
+    struct Position posEnemy3 = {2001, screenH - 125, 2001, screenH - 125};
+    CreateNormalEnemy(manager, posEnemy3, enemySprite, enemyBullet);
 
     struct Position posItem = {501, screenW/2, 501, screenW/2};
     CreateLifeItem(manager, 10, posItem, 1);
@@ -154,6 +157,9 @@ int main()
 
     al_destroy_bitmap(background);
     al_destroy_bitmap(playerMove);
+    al_destroy_bitmap(playerBullet);
+    al_destroy_bitmap(enemyBullet);
+    al_destroy_bitmap(enemySprite);
     al_destroy_font(font);
     al_destroy_display(display);
     al_destroy_timer(timer);

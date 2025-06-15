@@ -1,12 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include <allegro5/allegro5.h>
-#include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_image.h>
 #include "NormalEnemy.h"
 
-struct NormalEnemy* NormalEnemyCreate(unsigned char side, struct Position position, struct NormalEnemy* next)
+struct NormalEnemy* NormalEnemyCreate(unsigned char vert, unsigned char hor, struct Position position, struct NormalEnemy* next, ALLEGRO_BITMAP* sprite, ALLEGRO_BITMAP* bullet)
 {
     struct NormalEnemy* enemy;
 
@@ -16,11 +13,12 @@ struct NormalEnemy* NormalEnemyCreate(unsigned char side, struct Position positi
         exit(EXIT_FAILURE);
 
     enemy->health = 5;
-    enemy->side = side;
     enemy->position = position;
-    enemy->hitbox = HitboxCreate(side, side, position.x, position.y);
-    enemy->pistol = PistolCreate();
+    enemy->hitbox = HitboxCreate(vert, hor, position.x, position.y);
+    enemy->pistol = PistolCreate(PISTOL_COOLDOWN_ENEMY, bullet, 5);
     enemy->next = next;
+    enemy->sprite = sprite;
+    enemy->spriteBullet = bullet;
     return enemy;
 }
 void NormalEnemyShot(struct NormalEnemy* enemy, struct Player* player)
@@ -44,7 +42,7 @@ void CheckDistance(struct NormalEnemy* enemy, struct Player* player)
     
     if(distance < 200 && enemy->pistol->timer == 0)
     {
-        enemy->pistol->timer = PISTOL_COOLDOWN_ENEMY;
+        enemy->pistol->timer = enemy->pistol->cooldown;
         NormalEnemyShot(enemy, player);
     }
 }
@@ -116,7 +114,6 @@ void NormalEnemyUpdate(struct NormalEnemy* enemy, struct Player* player)
     if(enemy == NULL || player == NULL)
         return;
 
-    unsigned char size = enemy->side/2;
     if(enemy->pistol->timer)
         enemy->pistol->timer--;
     
@@ -134,8 +131,10 @@ void NormalEnemyUpdate(struct NormalEnemy* enemy, struct Player* player)
     enemy->hitbox->x = enemy->position.worldX;
     enemy->hitbox->y = enemy->position.worldY;
 
-    al_draw_filled_rectangle(enemy->position.x - size, enemy->position.y - size,
-        enemy->position.x + size, enemy->position.y + size, al_map_rgb(0, 255, 0));
+    HitboxDraw(enemy->hitbox, player);
+    al_draw_bitmap(enemy->sprite,
+        enemy->position.x - 75, enemy->position.y - 125,
+        0);
 
     CheckCollision(enemy, player);
     CheckDistance(enemy, player);

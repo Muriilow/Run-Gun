@@ -27,9 +27,9 @@ void CreateLifeItem(struct GameManager* manager, unsigned char side, struct Posi
     if(item != NULL)
         manager->lifeItemList = item;
 }
-void CreateNormalEnemy(struct GameManager* manager, unsigned char side, struct Position position)
+void CreateNormalEnemy(struct GameManager* manager, struct Position position, ALLEGRO_BITMAP* sprite, ALLEGRO_BITMAP* bullet)
 {
-    struct NormalEnemy* enemy = NormalEnemyCreate(side, position, manager->normalEnemyList);
+    struct NormalEnemy* enemy = NormalEnemyCreate(250, 25, position, manager->normalEnemyList, sprite, bullet);
     
     if(enemy != NULL)
         manager->normalEnemyList = enemy;

@@ -3,23 +3,25 @@
 #include "Player.h"
 #include "NormalEnemy.h"
 #include "Boss.h"
-#include "Utils.h"
 
-struct Pistol* PistolCreate()
+struct Pistol* PistolCreate(unsigned char cooldown, ALLEGRO_BITMAP* sprite, unsigned char hitboxSize)
 {
     struct Pistol* newPistol = malloc(sizeof(struct Pistol));
     if(newPistol == NULL)
         return NULL;
 
+    newPistol->sprite = sprite;
     newPistol->timer = 0;
+    newPistol->cooldown = cooldown;
     newPistol->shots = NULL;
+    newPistol->hitboxSize = hitboxSize;
 
     return newPistol;
 }
 
 struct Bullet* PistolShot(struct Position position, struct Vector2 trajectory, float velocity, struct Pistol* gun)
 {
-    struct Bullet* newBullet = BulletCreate(position, trajectory, velocity, gun->shots);
+    struct Bullet* newBullet = BulletCreate(position, trajectory, velocity, gun->shots, gun->hitboxSize);
     if(newBullet == NULL)
         return NULL;
 
@@ -50,10 +52,22 @@ void PlayerBulletUpdate(struct Player* player)
         index->position.worldY += index->trajectory.y * index->velocity;
         index->hitbox->x = index->position.worldX;
         index->hitbox->y = index->position.worldY;
-
-        al_draw_filled_circle(index->position.worldX - player->viewport->offsetX, index->position.worldY -
-                              player->viewport->offsetY, 2, al_map_rgb(255, 0, 0));
-
+    
+        HitboxDraw(index->hitbox, player);
+        if(player->face == RIGHT)
+        {
+            al_draw_bitmap(player->pistol->sprite,
+                           index->position.worldX - 20 - player->viewport->offsetX,
+                           index->position.worldY - 20 - player->viewport->offsetY,
+                           0);
+        }
+        else
+        {
+            al_draw_bitmap(player->pistol->sprite,
+                           index->position.worldX - 20 - player->viewport->offsetX,
+                           index->position.worldY - 20 - player->viewport->offsetY,
+                           ALLEGRO_FLIP_HORIZONTAL);
+        }
         if(index->position.x > player->viewport->width || index->timerToLive == 0)
         {
             if(previous)
@@ -132,8 +146,10 @@ void EnemyBulletUpdate(struct NormalEnemy* enemy, struct Player* player)
         index->hitbox->x = index->position.worldX;
         index->hitbox->y = index->position.worldY;
         
-        al_draw_filled_circle(index->position.worldX - player->viewport->offsetX, index->position.worldY -
-                              player->viewport->offsetY, 2, al_map_rgb(255, 0, 0));
+            al_draw_bitmap(enemy->pistol->sprite,
+                           index->position.worldX - 12 - player->viewport->offsetX,
+                           index->position.worldY - 12 - player->viewport->offsetY,
+                           0);
 
         if(index->position.x > player->viewport->width || index->timerToLive == 0)
         {

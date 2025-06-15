@@ -1,5 +1,10 @@
 #ifndef __PLAYER__
 #define __PLAYER__
+#include <allegro5/allegro5.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_image.h>
+
 #include "Hitbox.h"
 #include "Joystick.h"
 #include "Pistol.h"
@@ -19,12 +24,13 @@
 #define RIGHT_CORNER 500
 #define HITBOX 100
 #define HITBOX_CROUCHED 50
-
+#define PISTOL_COOLDOWN_PLAYER 30
 #define FRAME_SIZE 256
 #define FRAME_NUMBER 7
-#define FRAME_DELAY 5
+#define FRAME_DELAY 8
 
 #define PLAYER_STEP 3
+
 struct Player 
 {
     unsigned char currentFrame;
@@ -41,6 +47,7 @@ struct Player
     char jumpStrength;
     float velocityY;
     ALLEGRO_BITMAP* spriteWalking;
+    ALLEGRO_BITMAP* spriteBullet;
     struct Viewport* viewport;
     struct Joystick* control;
     struct Pistol* pistol;
@@ -55,7 +62,7 @@ struct Player
  * Returns the pointer of the player
 */
 
-struct Player* PlayerCreate(unsigned char side, struct Position position, struct Viewport* viewport, ALLEGRO_BITMAP* sprite);
+struct Player* PlayerCreate(unsigned char side, struct Position position, struct Viewport* viewport, ALLEGRO_BITMAP* sprite, ALLEGRO_BITMAP* bullet);
 
 /* Moves the character
  * player = The pointer to the player struct
