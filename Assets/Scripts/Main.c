@@ -60,7 +60,7 @@ int main()
     ALLEGRO_EVENT event;
     struct Player* player;
     struct GameManager* manager;
-    int screenW, screenH, imgW;
+    int screenW, screenH, imgW, imgH;
 
 
     timer = al_create_timer(1.0 / 60.0);
@@ -74,16 +74,18 @@ int main()
 
     //Creating a screen with the correct display size
     ALLEGRO_DISPLAY* display = al_create_display(screenW, screenH);
-    ALLEGRO_BITMAP *background = al_load_bitmap("Assets/Sprites/background.jpg");
+    ALLEGRO_BITMAP *background = al_load_bitmap("Assets/Sprites/background.png");
     ALLEGRO_BITMAP *playerMove = al_load_bitmap("Assets/Sprites/playerMove.png");
     ALLEGRO_BITMAP *playerBullet = al_load_bitmap("Assets/Sprites/bulletPlayer.png");
     ALLEGRO_BITMAP *enemySprite = al_load_bitmap("Assets/Sprites/normalEnemy.png");
     ALLEGRO_BITMAP *enemyBullet = al_load_bitmap("Assets/Sprites/bulletEnemy.png");
+    ALLEGRO_BITMAP *ground = al_load_bitmap("Assets/Sprites/ground.png");
     
     if(playerMove == NULL)
         fprintf(stderr, "deu ruim");
 
     imgW = al_get_bitmap_width(background);
+    imgH = al_get_bitmap_height(background);
 
     //Any keyboard, screen or timer events will be inserted in our queue
     al_register_event_source(queue, al_get_keyboard_event_source());
@@ -94,8 +96,8 @@ int main()
     struct Position pos = {301, 100, 301, 100};
     player = PlayerCreate(100, pos, &viewport, playerMove, playerBullet);
 
-    struct Position posBoss = {2501, screenW/2, 2501, screenW/2};
-    struct Boss* boss = BossCreate(100, posBoss);  
+    struct Position posBoss = {3001, 200, 3001, 200};
+    struct Boss* boss = BossCreate(posBoss);  
     manager = GameManagerCreate(player, boss);
 
     struct Position posEnemy1 = {1301, screenH - 125, 1301, screenH - 125};
@@ -127,6 +129,7 @@ int main()
                 xAxis = 0;
 
             BackgroundUpdate(background, imgW, xAxis);
+            al_draw_bitmap(ground, -player->viewport->offsetX, -player->viewport->offsetY, 0);
             PlayerUpdate(player);
             UpdateLogic(manager);  
 
@@ -156,6 +159,7 @@ int main()
     }
 
     al_destroy_bitmap(background);
+    al_destroy_bitmap(ground);
     al_destroy_bitmap(playerMove);
     al_destroy_bitmap(playerBullet);
     al_destroy_bitmap(enemyBullet);

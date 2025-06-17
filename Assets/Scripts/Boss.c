@@ -1,9 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include <allegro5/allegro5.h>
-#include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_image.h>
 #include "Boss.h"
 
 struct Power* PowerCreate(int side, struct Position position)
@@ -23,7 +20,7 @@ struct Power* PowerCreate(int side, struct Position position)
 
     return power; 
 }
-struct Boss* BossCreate(unsigned char side, struct Position position)
+struct Boss* BossCreate(struct Position position)
 {
     struct Boss* boss;
 
@@ -33,10 +30,13 @@ struct Boss* BossCreate(unsigned char side, struct Position position)
         exit(EXIT_FAILURE);
 
     boss->health = 50;
-    boss->side = side;
     boss->position = position;
-    boss->hitbox = HitboxCreate(side, side, position.x, position.y);
+    boss->hitbox = HitboxCreate(FRAME_VER_BOSS - 20, FRAME_HOR_BOSS- 80, position.x, position.y);
     boss->pistol = PistolCreate(PISTOL_COOLDOWN_BOSS, NULL, 10);
+    boss->sprite = al_load_bitmap("Assets/Sprites/boss.png");
+    boss->animationTime = 0;
+    boss->currentFrame = 0;
+    boss->moveTimer = 0;
 
     struct Position powerPos = {-10000, -10000, -10000, -10000};
     boss->power = PowerCreate(POWER_WIDTH, powerPos);
@@ -182,12 +182,37 @@ void BossPowerUpdate(struct Boss* boss, struct Player* player)
     }
 
 }
+void BossMove(struct Boss* boss)
+{
+    boss->moveTimer++;
+    if(boss->moveTimer >= BOSS_MOVE_DELAY)
+    {
+        boss->moveTimer = 0;
+    }
+}
+void BossDraw(struct Boss* boss, struct Player* player)
+{
+    boss->animationTime++;
+    if(boss->animationTime >= BOSS_FRAME_DELAY)
+    {
+        boss->animationTime = 0;
+        boss->currentFrame++;
+
+        if(boss->currentFrame > BOSS_FRAME_NUMBER)
+            boss->currentFrame = 0;
+    }
+
+    al_draw_bitmap_region(boss->sprite, boss->currentFrame*FRAME_HOR_BOSS,
+                0, FRAME_HOR_BOSS, FRAME_VER_BOSS,
+                boss->position.x - FRAME_HOR_BOSS/2,
+                boss->position.y - FRAME_VER_BOSS/2, 0);
+
+}
 void BossUpdate(struct Boss* boss, struct Player* player)
 {
     if(boss == NULL || player == NULL)
         return;
 
-    unsigned char size = boss->side/2;
 
     if(boss->pistol != NULL && boss->pistol->timer)
         boss->pistol->timer--;
@@ -206,11 +231,19 @@ void BossUpdate(struct Boss* boss, struct Player* player)
     boss->hitbox->x = boss->position.worldX;
     boss->hitbox->y = boss->position.worldY;
 
-    al_draw_filled_rectangle(boss->position.x - size, boss->position.y - size,
-        boss->position.x + size, boss->position.y + size, al_map_rgb(0, 255, 0));
-
+    HitboxDraw(boss->hitbox, player);
     CheckCollisionBoss(boss, player);
     CheckDistanceBoss(boss, player);
     BossBulletUpdate(boss, player);
     BossPowerUpdate(boss, player);
+    BossDraw(boss, player);
+}
+
+void BossDestroy(struct Boss* boss)
+{
+    al_destroy_bitmap(boss->sprite);
+    PistolDestroy(boss->pistol);
+    HitboxDestroy(boss->hitbox);
+    free(boss->power);
+    free(boss);
 }

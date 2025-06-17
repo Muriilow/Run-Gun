@@ -145,11 +145,12 @@ void EnemyBulletUpdate(struct NormalEnemy* enemy, struct Player* player)
         index->position.worldY += index->trajectory.y * index->velocity;
         index->hitbox->x = index->position.worldX;
         index->hitbox->y = index->position.worldY;
-        
-            al_draw_bitmap(enemy->pistol->sprite,
-                           index->position.worldX - 12 - player->viewport->offsetX,
-                           index->position.worldY - 12 - player->viewport->offsetY,
-                           0);
+       
+        HitboxDraw(index->hitbox, player);
+        al_draw_bitmap(enemy->pistol->sprite,
+                       index->position.worldX - 12 - player->viewport->offsetX,
+                       index->position.worldY - 12 - player->viewport->offsetY,
+                       0);
 
         if(index->position.x > player->viewport->width || index->timerToLive == 0)
         {

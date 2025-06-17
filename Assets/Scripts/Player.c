@@ -11,7 +11,7 @@ struct Player* PlayerCreate(unsigned char side, struct Position position, struct
     if(newPlayer == NULL)
         exit(EXIT_FAILURE);
 
-    newPlayer->health = 5;
+    newPlayer->health = 50;
     newPlayer->side = side;
     newPlayer->face = RIGHT;
     newPlayer->isOnGround = FALSE;
