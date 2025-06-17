@@ -349,7 +349,12 @@ void PlayerShot(struct Player* player)
 {
     struct Bullet* shot;
 
-    if(player->face == LEFT)
+    if(player->control->up)
+    {
+        struct Vector2 traj = {0, -1};
+        shot = PistolShot(player->position, traj, 6., player->pistol);
+    }
+    else if(player->face == LEFT)
     {
         struct Vector2 traj = {-1, 0};
         shot = PistolShot(player->position, traj, 6., player->pistol);

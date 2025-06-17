@@ -10,7 +10,7 @@
 #include "GameManager.h"
 #include "Boss.h"
 
-#define WHITE al_map_rgb(255, 255, 255)
+#define RED al_map_rgb(255, 0, 0)
 
 void InputControl(ALLEGRO_EVENT event, struct Player* player)
 {
@@ -40,8 +40,6 @@ void InputControl(ALLEGRO_EVENT event, struct Player* player)
 
 void BackgroundUpdate(ALLEGRO_BITMAP* bg, int width, int xAxis)
 {
-    al_draw_bitmap(bg, xAxis, 0, 0);
-    al_draw_bitmap(bg, xAxis + width, 0, 0);
 };
 
 int main()
@@ -112,6 +110,8 @@ int main()
 
     al_start_timer(timer);
 
+    int xAxisBack = 0;
+    int xAxisPlayer = 0;
     int xAxis = 0;
 
     while(1)
@@ -124,30 +124,32 @@ int main()
         if(event.type == ALLEGRO_EVENT_TIMER)
         {
             xAxis--; 
+            xAxisBack = xAxis % -imgW;
+            xAxisPlayer = (int)-player->viewport->offsetX % -imgW;
+                
+            al_draw_scaled_bitmap(background, 0, 0, imgW, imgH, xAxisBack, 0, imgW, screenH, 0);
+            al_draw_scaled_bitmap(background, 0, 0, imgW, imgH, xAxisBack + imgW, 0, imgW, screenH, 0);
+            al_draw_scaled_bitmap(ground, 0, 0, imgW, imgH, xAxisPlayer, 0, imgW, screenH, 0);
+            al_draw_scaled_bitmap(ground, 0, 0, imgW, imgH, xAxisPlayer + imgW, 0, imgW, screenH, 0);
 
-            if (xAxis <= -imgW)
-                xAxis = 0;
-
-            BackgroundUpdate(background, imgW, xAxis);
-            al_draw_bitmap(ground, -player->viewport->offsetX, -player->viewport->offsetY, 0);
             PlayerUpdate(player);
             UpdateLogic(manager);  
 
-            al_draw_textf(font, WHITE, 10, 10, ALLEGRO_ALIGN_LEFT, "STATE: %d", player->state);
-            al_draw_textf(font, WHITE, 10, 100, ALLEGRO_ALIGN_LEFT, "HEALTH: %d", player->health);
-            al_draw_textf(font, WHITE, 10, 20, ALLEGRO_ALIGN_LEFT, "X-pos: %d", player->position.x);
-            al_draw_textf(font, WHITE, 10, 30, ALLEGRO_ALIGN_LEFT, "Y-pos: %d", player->position.y);
-            al_draw_textf(font, WHITE, 200, 10, ALLEGRO_ALIGN_LEFT, "XWorld-pos: %d", player->position.worldX);
-            al_draw_textf(font, WHITE, 200, 20, ALLEGRO_ALIGN_LEFT, "YWorld-pos: %d", player->position.worldY);
-            al_draw_textf(font, WHITE, 10, 40, ALLEGRO_ALIGN_LEFT, "X-hitbox: %f", player->hitbox->x);
-            al_draw_textf(font, WHITE, 10, 50, ALLEGRO_ALIGN_LEFT, "Y-hitbox: %f", player->hitbox->y);
-            al_draw_textf(font, WHITE, 10, 60, ALLEGRO_ALIGN_LEFT, "isOnGround: %d", player->isOnGround);
-            al_draw_textf(font, WHITE, 10, 70, ALLEGRO_ALIGN_LEFT, "isLeft: %d", player->isLeft);
-            al_draw_textf(font, WHITE, 10, 80, ALLEGRO_ALIGN_LEFT, "isRight: %d", player->isRight);
-            al_draw_textf(font, WHITE, 10, 90, ALLEGRO_ALIGN_LEFT, "velocityY: %f", player->velocityY);
-            al_draw_textf(font, WHITE, 200, 30, ALLEGRO_ALIGN_LEFT, "Xviewport: %f", player->viewport->offsetX);
-            al_draw_textf(font, WHITE, 200, 40, ALLEGRO_ALIGN_LEFT, "Yviewport: %f", player->viewport->offsetY);
-            al_draw_textf(font, WHITE, 200, 50, ALLEGRO_ALIGN_LEFT, "Player-Fire: %d", player->control->fire);
+            al_draw_textf(font, RED, 10, 10, ALLEGRO_ALIGN_LEFT, "STATE: %d", player->state);
+            al_draw_textf(font, RED, 10, 100, ALLEGRO_ALIGN_LEFT, "HEALTH: %d", player->health);
+            al_draw_textf(font, RED, 10, 20, ALLEGRO_ALIGN_LEFT, "X-pos: %d", player->position.x);
+            al_draw_textf(font, RED, 10, 30, ALLEGRO_ALIGN_LEFT, "Y-pos: %d", player->position.y);
+            al_draw_textf(font, RED, 200, 10, ALLEGRO_ALIGN_LEFT, "XWorld-pos: %d", player->position.worldX);
+            al_draw_textf(font, RED, 200, 20, ALLEGRO_ALIGN_LEFT, "YWorld-pos: %d", player->position.worldY);
+            al_draw_textf(font, RED, 10, 40, ALLEGRO_ALIGN_LEFT, "X-hitbox: %f", player->hitbox->x);
+            al_draw_textf(font, RED, 10, 50, ALLEGRO_ALIGN_LEFT, "Y-hitbox: %f", player->hitbox->y);
+            al_draw_textf(font, RED, 10, 60, ALLEGRO_ALIGN_LEFT, "isOnGround: %d", player->isOnGround);
+            al_draw_textf(font, RED, 10, 70, ALLEGRO_ALIGN_LEFT, "isLeft: %d", player->isLeft);
+            al_draw_textf(font, RED, 10, 80, ALLEGRO_ALIGN_LEFT, "isRight: %d", player->isRight);
+            al_draw_textf(font, RED, 10, 90, ALLEGRO_ALIGN_LEFT, "velocityY: %f", player->velocityY);
+            al_draw_textf(font, RED, 200, 30, ALLEGRO_ALIGN_LEFT, "Xviewport: %f", player->viewport->offsetX);
+            al_draw_textf(font, RED, 200, 40, ALLEGRO_ALIGN_LEFT, "Yviewport: %f", player->viewport->offsetY);
+            al_draw_textf(font, RED, 200, 50, ALLEGRO_ALIGN_LEFT, "Player-Fire: %d", player->control->fire);
 
             al_flip_display();
         }

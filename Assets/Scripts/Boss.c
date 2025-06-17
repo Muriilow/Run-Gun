@@ -31,13 +31,15 @@ struct Boss* BossCreate(struct Position position)
 
     boss->health = 50;
     boss->position = position;
-    boss->hitbox = HitboxCreate(FRAME_VER_BOSS - 20, FRAME_HOR_BOSS- 80, position.x, position.y);
+    boss->hitbox = HitboxCreate(FRAME_VER_BOSS - 100, FRAME_HOR_BOSS- 100, position.x, position.y);
     boss->pistol = PistolCreate(PISTOL_COOLDOWN_BOSS, NULL, 10);
     boss->sprite = al_load_bitmap("Assets/Sprites/boss.png");
     boss->animationTime = 0;
     boss->currentFrame = 0;
     boss->moveTimer = 0;
-
+    boss->isAttacking = FALSE;
+    boss->velocityX = 0;
+    boss->velocityY = 0;
     struct Position powerPos = {-10000, -10000, -10000, -10000};
     boss->power = PowerCreate(POWER_WIDTH, powerPos);
 
@@ -52,7 +54,7 @@ void BossShot(struct Boss* boss, struct Player* player)
     float angle = atan2(distanceY, distanceX);
     struct Vector2 traj = {cos(angle), sin(angle)};
 
-    shot = PistolShot(boss->position, traj, 6., boss->pistol);
+    shot = PistolShot(boss->position, traj, 4., boss->pistol);
 
     if(shot)
         boss->pistol->shots = shot;
@@ -63,12 +65,13 @@ void CheckDistanceBoss(struct Boss* boss, struct Player* player)
     short distanceY = boss->position.worldY - player->position.worldY;
     float distance = sqrt(distanceX*distanceX + distanceY*distanceY);
     
-    if(distance < 200 && boss->pistol->timer == 0)
+    if(distance < 600 && boss->pistol->timer == 0)
     {
+        boss->isAttacking = TRUE; 
         boss->pistol->timer = boss->pistol->cooldown;
         BossShot(boss, player);
     }
-    if(distance < 400 && boss->power->timer == 0 && boss->power->isFixed == FALSE)
+    if(distance < 600 && boss->power->timer == 0 && boss->power->isFixed == FALSE)
     {
         boss->power->isFixed = TRUE;
         struct Position pos = {player->position.x, 0, player->position.worldX, 0};
@@ -76,6 +79,8 @@ void CheckDistanceBoss(struct Boss* boss, struct Player* player)
         boss->power->hitbox->x = pos.worldX;
         boss->power->hitbox->y = pos.worldY;
     }
+    if(distance >= 900)
+        boss->isAttacking = FALSE;
 }
 void CheckCollisionBoss(struct Boss* boss, struct Player* player)
 {
@@ -182,16 +187,35 @@ void BossPowerUpdate(struct Boss* boss, struct Player* player)
     }
 
 }
-void BossMove(struct Boss* boss)
+void BossMove(struct Boss* boss, struct Player* player)
 {
+    short distanceX = boss->position.worldX - player->position.worldX;
+
     boss->moveTimer++;
-    if(boss->moveTimer >= BOSS_MOVE_DELAY)
+    if(boss->isAttacking && boss->moveTimer >= BOSS_MOVE_DELAY)
     {
+        if(distanceX > 0)
+            boss->velocityX = 12;
+        else
+            boss->velocityX = -12;
+
         boss->moveTimer = 0;
+    }
+    if(boss->health == 36 || boss->health == 24 || boss->health == 12)
+    {
+        boss->velocityY = 1.2;
     }
 }
 void BossDraw(struct Boss* boss, struct Player* player)
 {
+    if(boss->power->isActive)
+    {
+        al_draw_bitmap_region(boss->sprite, 4*FRAME_HOR_BOSS,
+                    0, FRAME_HOR_BOSS, FRAME_VER_BOSS,
+                    boss->position.x - FRAME_HOR_BOSS/2,
+                    boss->position.y - FRAME_VER_BOSS/2, 0);
+        return;
+    }
     boss->animationTime++;
     if(boss->animationTime >= BOSS_FRAME_DELAY)
     {
@@ -214,28 +238,40 @@ void BossUpdate(struct Boss* boss, struct Player* player)
         return;
 
 
+    boss->position.worldX += boss->velocityX;
+    boss->position.worldY += boss->velocityY;
+
+    if(boss->velocityX > 0)
+        boss->velocityX -= 0.12;
+    if(boss->velocityX < 0)
+        boss->velocityX += 0.12;
+
+    if(boss->velocityY)
+        boss->velocityY -= 0.2;
+    if(boss->velocityY < 0)
+        boss->velocityY = 0;
+
     if(boss->pistol != NULL && boss->pistol->timer)
         boss->pistol->timer--;
     
 
     /* If boss died */
-    if(boss->health == 0)
-    {
-        exit(EXIT_SUCCESS);
-    }
+    //if(boss->health == 0)
+    //    exit(EXIT_SUCCESS);
 
     /*Updating our screen x and y positions*/
     boss->position.x = boss->position.worldX - player->viewport->offsetX;
     boss->position.y = boss->position.worldY - player->viewport->offsetY;
     /*Updating our hitbox based on the position of the word*/
     boss->hitbox->x = boss->position.worldX;
-    boss->hitbox->y = boss->position.worldY;
+    boss->hitbox->y = boss->position.worldY - 60; //Subtracting 60 to move the hitbox up
 
-    HitboxDraw(boss->hitbox, player);
+    //HitboxDraw(boss->hitbox, player);
     CheckCollisionBoss(boss, player);
     CheckDistanceBoss(boss, player);
     BossBulletUpdate(boss, player);
     BossPowerUpdate(boss, player);
+    BossMove(boss, player);
     BossDraw(boss, player);
 }
 

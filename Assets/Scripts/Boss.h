@@ -13,9 +13,9 @@
 #define FRAME_VER_BOSS 384
 #define BOSS_FRAME_DELAY 20
 #define BOSS_FRAME_NUMBER 3
-#define BOSS_MOVE_DELAY 40
+#define BOSS_MOVE_DELAY 800
 
-#define PISTOL_COOLDOWN_BOSS 40
+#define PISTOL_COOLDOWN_BOSS 120
 #define POWER_COOLDOWN_BOSS 400
 #define POWER_WIDTH 50
 struct Power
@@ -31,10 +31,13 @@ struct Power
 struct Boss
 {
     ALLEGRO_BITMAP* sprite;
+    float velocityX;
+    float velocityY;
     unsigned char animationTime;
     unsigned char currentFrame;
-    unsigned char moveTimer;
+    unsigned int moveTimer;
     unsigned char health;
+    unsigned char isAttacking;
     struct Hitbox* hitbox;
     struct Position position;
     struct Pistol* pistol;
