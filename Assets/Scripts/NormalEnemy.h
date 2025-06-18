@@ -3,11 +3,13 @@
 
 #define ENEMY_FRAME_NUMBER 5
 #define ENEMY_FRAME_DELAY 20
-#define PISTOL_COOLDOWN_ENEMY 20
+#define PISTOL_COOLDOWN_ENEMY 120
 #define FRAME_VERT_EN 250 
 #define FRAME_HOR_EN 150
  
 #include <allegro5/allegro5.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_image.h>
 #include "Hitbox.h"
@@ -24,6 +26,7 @@ struct NormalEnemy
     unsigned char isFocused;
     unsigned char health;
     unsigned char side;
+    struct Vector2 velocity;
     struct Hitbox* hitbox;
     struct Position position;
     struct Pistol* pistol;

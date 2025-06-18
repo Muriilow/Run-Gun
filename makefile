@@ -1,6 +1,6 @@
 SRC_FILES = Main.o Player.o Joystick.o Pistol.o Bullet.o Hitbox.o NormalEnemy.o Ground.o Item.o GameManager.o Boss.o
 
-SRC_MAIN = $(addprefix Assets/Scripts/, Main.c Player.h NormalEnemy.h Item.h Ground.h GameManager.h)
+SRC_MAIN = $(addprefix Assets/Scripts/, Main.c Player.h NormalEnemy.h Item.h Ground.h GameManager.h Utils.h)
 SRC_PLAYER = $(addprefix Assets/Scripts/, Player.c Player.h Utils.h)
 SRC_ENEMY = $(addprefix Assets/Scripts/, NormalEnemy.c NormalEnemy.h Hitbox.h Utils.h)
 SRC_JOYSTICK = $(addprefix Assets/Scripts/, Joystick.c Joystick.h)
@@ -13,9 +13,9 @@ SRC_MANAGER = $(addprefix Assets/Scripts/, GameManager.c GameManager.h Player.h 
 SRC_BOSS = $(addprefix Assets/Scripts/, Boss.c Boss.h)
 
 
-LDFLAGS = $(shell pkg-config --libs allegro-5 allegro_main-5 allegro_font-5 allegro_primitives-5 allegro_image-5) 
-CFLAGS = $(shell pkg-config --cflags allegro-5 allegro_main-5 allegro_font-5 allegro_primitives-5 allegro_image-5)
-CPRIM = $(shell pkg-config --cflags allegro-5 allegro_primitives-5 allegro_image-5)
+LDFLAGS = $(shell pkg-config --libs allegro-5 allegro_main-5 allegro_font-5 allegro_primitives-5 allegro_image-5 allegro_ttf-5) 
+CFLAGS = $(shell pkg-config --cflags allegro-5 allegro_main-5 allegro_font-5 allegro_primitives-5 allegro_image-5 allegro_ttf-5)
+CPRIM = $(shell pkg-config --cflags allegro-5 allegro_primitives-5 allegro_font-5 allegro_image-5 allegro_ttf-5)
 
 main: $(SRC_FILES)
 	gcc -Wall -Wextra $(SRC_FILES) -o game $(LDFLAGS) -lm 

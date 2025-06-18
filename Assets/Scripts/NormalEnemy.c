@@ -6,7 +6,7 @@
 struct NormalEnemy* NormalEnemyCreate(unsigned char vert, unsigned char hor, struct Position position, struct NormalEnemy* next, ALLEGRO_BITMAP* sprite, ALLEGRO_BITMAP* bullet)
 {
     struct NormalEnemy* enemy;
-
+    struct Vector2 vec2 = {0, 0};
     enemy = malloc(sizeof(struct NormalEnemy));
 
     if(enemy == NULL)
@@ -22,6 +22,7 @@ struct NormalEnemy* NormalEnemyCreate(unsigned char vert, unsigned char hor, str
     enemy->isFocused = FALSE;
     enemy->currentFrame = 1;
     enemy->animationTime = 0;
+    enemy->velocity = vec2;
     return enemy;
 }
 void NormalEnemyShot(struct NormalEnemy* enemy, struct Player* player)
@@ -43,13 +44,14 @@ void CheckDistance(struct NormalEnemy* enemy, struct Player* player)
     short distanceY = enemy->position.worldY - player->position.worldY;
     float distance = sqrt(distanceX*distanceX + distanceY*distanceY);
             
-    if(distance < 350 && enemy->pistol->timer == 0)
+    if(distance < 650 && enemy->pistol->timer == 0)
     {
+        enemy->velocity.x = -2;
         enemy->isFocused = TRUE;
         enemy->pistol->timer = enemy->pistol->cooldown;
         NormalEnemyShot(enemy, player);
     }
-    else if(distance >= 400)
+    else if(distance >= 700)
     {
         enemy->isFocused = FALSE;
     }
@@ -159,6 +161,14 @@ void NormalEnemyUpdate(struct NormalEnemy* enemy, struct Player* player)
         enemy = NULL;
         return;
     }
+    if(enemy->velocity.x)
+        enemy->velocity.x += 0.2;
+
+    if(enemy->velocity.x > 0)
+        enemy->velocity.x = 0;
+    enemy->position.worldX += enemy->velocity.x;
+    enemy->position.worldY += enemy->velocity.y;
+
     /*Updating our screen x and y positions*/
     enemy->position.x = enemy->position.worldX - player->viewport->offsetX;
     enemy->position.y = enemy->position.worldY - player->viewport->offsetY;

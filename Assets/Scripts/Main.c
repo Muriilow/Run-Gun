@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_image.h>
 #include "Player.h"
@@ -9,8 +10,13 @@
 #include "Item.h"
 #include "GameManager.h"
 #include "Boss.h"
+#include "Utils.h"
 
-#define RED al_map_rgb(255, 0, 0)
+#define SCREEN_W 1366
+#define SCREEN_H 768 
+#define GREY al_map_rgb(164, 164, 164)
+#define BLACK al_map_rgb(64, 64, 64)
+#define WHITE al_map_rgb(204, 204, 204)
 
 void InputControl(ALLEGRO_EVENT event, struct Player* player)
 {
@@ -38,59 +44,107 @@ void InputControl(ALLEGRO_EVENT event, struct Player* player)
     }
 };
 
-void BackgroundUpdate(ALLEGRO_BITMAP* bg, int width, int xAxis)
+unsigned char MenuControl(ALLEGRO_EVENT event, enum GameState* mode, enum Menu* option)
 {
+    if(event.type != ALLEGRO_EVENT_KEY_DOWN)
+        return 1;
+    if(event.keyboard.keycode == ALLEGRO_KEY_ENTER)
+    {
+        if(*option == PLAY)
+            *mode = GAME;
+        else if(*option == EXIT)
+            return 0;
+    }
+    else if(event.keyboard.keycode == ALLEGRO_KEY_S || event.keyboard.keycode == ALLEGRO_KEY_W)
+    {
+        if(*option == PLAY)
+            *option = EXIT;
+
+        else if(*option == EXIT)
+            *option = PLAY;
+    }
+    return 1;
+};
+
+unsigned char PauseControl(ALLEGRO_EVENT event, enum GameState* mode, enum Menu* option)
+{
+    if(event.type != ALLEGRO_EVENT_KEY_DOWN)
+        return 2;
+
+    if(event.keyboard.keycode == ALLEGRO_KEY_ENTER)
+    {
+        if(*option == CONTINUE)
+            *mode = GAME;
+        else if(*option == BACK)
+        {
+            *option = PLAY;
+            *mode = MENU;
+        }
+        return 1;
+    }
+    else if(event.keyboard.keycode == ALLEGRO_KEY_S || event.keyboard.keycode == ALLEGRO_KEY_W)
+    {
+        if(*option == CONTINUE)
+            *option = BACK;
+
+        else if(*option == BACK)
+            *option = CONTINUE;
+    }
+
+    return 0;
 };
 
 int main()
 {
     al_init();
+    al_init_font_addon();
+    al_init_ttf_addon();
     al_init_image_addon();
     al_init_primitives_addon();
     al_install_keyboard();
     al_set_new_display_flags(ALLEGRO_FULLSCREEN | ALLEGRO_OPENGL);
-    
+ 
+
     //Initializing variables 
-    ALLEGRO_MONITOR_INFO info;
     ALLEGRO_TIMER* timer;
     ALLEGRO_EVENT_QUEUE* queue; 
-    ALLEGRO_FONT* font; 
     ALLEGRO_EVENT event;
+    unsigned char xHeartOffset = 40;
+    unsigned char ignoreKeyboard = 1;
+    unsigned char running = 1;
     struct Player* player;
     struct GameManager* manager;
-    int screenW, screenH, imgW, imgH;
-
+    int imgW, imgH;
+    enum GameState mode = MENU;
+    enum Menu option = PLAY;
 
     timer = al_create_timer(1.0 / 60.0);
     queue = al_create_event_queue();
-    font = al_create_builtin_font();
-
-    //Finding information about the screen
-    al_get_monitor_info(0, &info);
-    screenW = info.x2 - info.x1;
-    screenH = info.y2 - info.y1;
 
     //Creating a screen with the correct display size
-    ALLEGRO_DISPLAY* display = al_create_display(screenW, screenH);
+    ALLEGRO_DISPLAY* display = al_create_display(SCREEN_W, SCREEN_H);
     ALLEGRO_BITMAP *background = al_load_bitmap("Assets/Sprites/background.png");
+    ALLEGRO_BITMAP *menu = al_load_bitmap("Assets/Sprites/menu.png");
     ALLEGRO_BITMAP *playerMove = al_load_bitmap("Assets/Sprites/playerMove.png");
     ALLEGRO_BITMAP *playerBullet = al_load_bitmap("Assets/Sprites/bulletPlayer.png");
     ALLEGRO_BITMAP *enemySprite = al_load_bitmap("Assets/Sprites/normalEnemy.png");
     ALLEGRO_BITMAP *enemyBullet = al_load_bitmap("Assets/Sprites/bulletEnemy.png");
     ALLEGRO_BITMAP *ground = al_load_bitmap("Assets/Sprites/ground.png");
+    ALLEGRO_BITMAP *heart = al_load_bitmap("Assets/Sprites/heart.png");
+    ALLEGRO_FONT *font = al_load_font("Assets/Fonts/Canterbury.ttf", 84, 0);
     
-    if(playerMove == NULL)
-        fprintf(stderr, "deu ruim");
-
     imgW = al_get_bitmap_width(background);
     imgH = al_get_bitmap_height(background);
+    
+    int menuW = al_get_bitmap_width(menu);
+    int menuH = al_get_bitmap_height(menu);
 
     //Any keyboard, screen or timer events will be inserted in our queue
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
     
-    struct Viewport viewport = {0, 0, 0, 0, screenW, screenH};
+    struct Viewport viewport = {0, 0, 0, 0, SCREEN_W, SCREEN_H};
     struct Position pos = {301, 100, 301, 100};
     player = PlayerCreate(100, pos, &viewport, playerMove, playerBullet);
 
@@ -98,69 +152,112 @@ int main()
     struct Boss* boss = BossCreate(posBoss);  
     manager = GameManagerCreate(player, boss);
 
-    struct Position posEnemy1 = {1301, screenH - 125, 1301, screenH - 125};
+    struct Position posEnemy1 = {1301, SCREEN_H - 125, 1301, SCREEN_H - 125};
     CreateNormalEnemy(manager, posEnemy1, enemySprite, enemyBullet);
-    struct Position posEnemy2 = {1601, screenH - 125, 1601, screenH - 125}; 
+    struct Position posEnemy2 = {1601, SCREEN_H - 125, 1601, SCREEN_H - 125}; 
     CreateNormalEnemy(manager, posEnemy2, enemySprite, enemyBullet);
-    struct Position posEnemy3 = {2001, screenH - 125, 2001, screenH - 125};
+    struct Position posEnemy3 = {2001, SCREEN_H - 125, 2001, SCREEN_H - 125};
     CreateNormalEnemy(manager, posEnemy3, enemySprite, enemyBullet);
 
-    struct Position posItem = {501, screenW/2, 501, screenW/2};
+    struct Position posItem = {501, SCREEN_W/2, 501, SCREEN_W/2};
     CreateLifeItem(manager, 10, posItem, 1);
 
-    al_start_timer(timer);
 
     int xAxisBack = 0;
     int xAxisPlayer = 0;
     int xAxis = 0;
 
-    while(1)
+    al_start_timer(timer);
+    while(running)
     {
         al_wait_for_event(queue, &event);
-        
-        if(player->health <= 0)
-            break;
-        //Clock event
-        if(event.type == ALLEGRO_EVENT_TIMER)
+
+        if(event.type == ALLEGRO_EVENT_KEY_DOWN || event.type == ALLEGRO_EVENT_KEY_UP)
         {
-            xAxis--; 
-            xAxisBack = xAxis % -imgW;
-            xAxisPlayer = (int)-player->viewport->offsetX % -imgW;
+            if(mode == GAME)
+            {
+                //if(event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+                //{
+                //    option = CONTINUE;
+                //    mode = PAUSE;
+                //    continue;
+                //}
+
+                /*We need to ignore the first key event because it will unsync the joystick with event_key_up*/
+                if(ignoreKeyboard == 1)
+                {
+                    al_flush_event_queue(queue);
+                    ignoreKeyboard = 0;
+                    continue;
+                }
+
+                InputControl(event, player);
+            }
+            else if(mode == MENU)
+                running = MenuControl(event, &mode, &option);
+            else if(mode == PAUSE)
+                ignoreKeyboard = PauseControl(event, &mode, &option);
+        }
+        else if(event.type == ALLEGRO_EVENT_TIMER)
+        {
+            if(mode == GAME)
+            {
+                if(player->health <= 0)
+                    break;
+            
+                xAxis--; 
+                xAxisBack = xAxis % -imgW;
+                xAxisPlayer = (int)-player->viewport->offsetX % -imgW;
+                    
+                al_draw_scaled_bitmap(background, 0, 0, imgW, imgH, xAxisBack, 0, imgW, SCREEN_H, 0);
+                al_draw_scaled_bitmap(background, 0, 0, imgW, imgH, xAxisBack + imgW, 0, imgW, SCREEN_H, 0);
+                al_draw_scaled_bitmap(ground, 0, 0, imgW, imgH, xAxisPlayer, 0, imgW, SCREEN_H, 0);
+                al_draw_scaled_bitmap(ground, 0, 0, imgW, imgH, xAxisPlayer + imgW, 0, imgW, SCREEN_H, 0);
+                for(int i = 0; i < player->health; i++)
+                    al_draw_scaled_bitmap(heart, 0, 0, 150, 150, 50 + xHeartOffset*i, 50, 50, 50, 0);
+
+
+                PlayerUpdate(player);
+                UpdateLogic(manager); 
+            }
+            else if(mode == MENU)
+            {
+                al_draw_scaled_bitmap(menu, 0, 0, menuW, menuH, 0, 0, SCREEN_W, SCREEN_H, 0);
+
+                if(option == PLAY)
+                    al_draw_text(font, WHITE, SCREEN_W - 400, 200, ALLEGRO_ALIGN_LEFT, "Play");
+                else
+                    al_draw_text(font, GREY, SCREEN_W - 400, 200, ALLEGRO_ALIGN_LEFT, "Play");
+
+                if(option == EXIT)
+                    al_draw_text(font, WHITE, SCREEN_W - 400, 350, ALLEGRO_ALIGN_LEFT, "Exit");
+                else
+                    al_draw_text(font, GREY, SCREEN_W - 400, 350, ALLEGRO_ALIGN_LEFT, "Exit");
                 
-            al_draw_scaled_bitmap(background, 0, 0, imgW, imgH, xAxisBack, 0, imgW, screenH, 0);
-            al_draw_scaled_bitmap(background, 0, 0, imgW, imgH, xAxisBack + imgW, 0, imgW, screenH, 0);
-            al_draw_scaled_bitmap(ground, 0, 0, imgW, imgH, xAxisPlayer, 0, imgW, screenH, 0);
-            al_draw_scaled_bitmap(ground, 0, 0, imgW, imgH, xAxisPlayer + imgW, 0, imgW, screenH, 0);
-
-            PlayerUpdate(player);
-            UpdateLogic(manager);  
-
-            al_draw_textf(font, RED, 10, 10, ALLEGRO_ALIGN_LEFT, "STATE: %d", player->state);
-            al_draw_textf(font, RED, 10, 100, ALLEGRO_ALIGN_LEFT, "HEALTH: %d", player->health);
-            al_draw_textf(font, RED, 10, 20, ALLEGRO_ALIGN_LEFT, "X-pos: %d", player->position.x);
-            al_draw_textf(font, RED, 10, 30, ALLEGRO_ALIGN_LEFT, "Y-pos: %d", player->position.y);
-            al_draw_textf(font, RED, 200, 10, ALLEGRO_ALIGN_LEFT, "XWorld-pos: %d", player->position.worldX);
-            al_draw_textf(font, RED, 200, 20, ALLEGRO_ALIGN_LEFT, "YWorld-pos: %d", player->position.worldY);
-            al_draw_textf(font, RED, 10, 40, ALLEGRO_ALIGN_LEFT, "X-hitbox: %f", player->hitbox->x);
-            al_draw_textf(font, RED, 10, 50, ALLEGRO_ALIGN_LEFT, "Y-hitbox: %f", player->hitbox->y);
-            al_draw_textf(font, RED, 10, 60, ALLEGRO_ALIGN_LEFT, "isOnGround: %d", player->isOnGround);
-            al_draw_textf(font, RED, 10, 70, ALLEGRO_ALIGN_LEFT, "isLeft: %d", player->isLeft);
-            al_draw_textf(font, RED, 10, 80, ALLEGRO_ALIGN_LEFT, "isRight: %d", player->isRight);
-            al_draw_textf(font, RED, 10, 90, ALLEGRO_ALIGN_LEFT, "velocityY: %f", player->velocityY);
-            al_draw_textf(font, RED, 200, 30, ALLEGRO_ALIGN_LEFT, "Xviewport: %f", player->viewport->offsetX);
-            al_draw_textf(font, RED, 200, 40, ALLEGRO_ALIGN_LEFT, "Yviewport: %f", player->viewport->offsetY);
-            al_draw_textf(font, RED, 200, 50, ALLEGRO_ALIGN_LEFT, "Player-Fire: %d", player->control->fire);
+            }
+            else if(mode == PAUSE)
+            {
+                if(option == CONTINUE)
+                    al_draw_text(font, GREY, SCREEN_W/2, 200, ALLEGRO_ALIGN_CENTER, "Continue");
+                else
+                    al_draw_text(font, BLACK, SCREEN_W/2, 200, ALLEGRO_ALIGN_CENTER, "Continue");
+                if(option == BACK)
+                    al_draw_text(font, GREY, SCREEN_W/2, 350, ALLEGRO_ALIGN_CENTER, "Menu");
+                else
+                    al_draw_text(font, BLACK, SCREEN_W/2, 350, ALLEGRO_ALIGN_CENTER, "Menu");
+            }
 
             al_flip_display();
         }
-        else if(event.type == ALLEGRO_EVENT_KEY_DOWN || event.type == ALLEGRO_EVENT_KEY_UP)
-            InputControl(event, player);
+
         //Close the program
-        else if(event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
-            break;
+        if(event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+            running = FALSE;
     }
 
     al_destroy_bitmap(background);
+    al_destroy_bitmap(menu);
+    al_destroy_bitmap(heart);
     al_destroy_bitmap(ground);
     al_destroy_bitmap(playerMove);
     al_destroy_bitmap(playerBullet);

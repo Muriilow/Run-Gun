@@ -34,10 +34,25 @@ enum State
     DOUBLE_JUMP,
     CROUCHED, 
 };
+enum GameState
+{
+    MENU, 
+    GAME,
+    PAUSE,
+    GAME_OVER,
+    GAME_WIN
+};
 enum Entities
 {
     PLAYER,
     NORMAL_ENEMY,
+};
+enum Menu 
+{
+    PLAY, 
+    EXIT,
+    CONTINUE,
+    BACK
 };
 
 #endif
