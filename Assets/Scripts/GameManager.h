@@ -22,6 +22,6 @@ struct GameManager
 
 struct GameManager* GameManagerCreate(struct Player* player, struct Boss* boss);
 void CreateNormalEnemy(struct GameManager* manager, struct Position position, ALLEGRO_BITMAP* sprite, ALLEGRO_BITMAP* bullet);
-void CreateLifeItem(struct GameManager* manager, unsigned char side, struct Position position, unsigned char type);
+void CreateItem(struct GameManager* manager, struct Position position, unsigned char type, ALLEGRO_BITMAP* sprite);
 void UpdateLogic(struct GameManager* manager);
 #endif

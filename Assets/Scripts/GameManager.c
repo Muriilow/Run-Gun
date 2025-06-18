@@ -20,9 +20,9 @@ struct GameManager* GameManagerCreate(struct Player* player, struct Boss* boss)
     return manager;
 }
 
-void CreateLifeItem(struct GameManager* manager, unsigned char side, struct Position position, unsigned char type)
+void CreateItem(struct GameManager* manager, struct Position position, unsigned char type, ALLEGRO_BITMAP* sprite)
 {
-    struct Item* item = ItemCreate(side, position, manager->lifeItemList, type);
+    struct Item* item = ItemCreate(position, manager->lifeItemList, type, sprite);
 
     if(item != NULL)
         manager->lifeItemList = item;

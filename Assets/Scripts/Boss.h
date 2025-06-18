@@ -22,6 +22,8 @@
 #define POWER_WIDTH 50
 struct Power
 {
+    ALLEGRO_BITMAP* ray;
+    ALLEGRO_BITMAP* light;
     unsigned char isFixed;
     unsigned char isActive;
     unsigned short lineTimer;

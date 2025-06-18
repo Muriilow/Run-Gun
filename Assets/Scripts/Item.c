@@ -3,7 +3,7 @@
 #include "Player.h"
 
 
-struct Item* ItemCreate(unsigned char side, struct Position position, struct Item* next, unsigned char type)
+struct Item* ItemCreate(struct Position position, struct Item* next, unsigned char type, ALLEGRO_BITMAP* sprite)
 {
     struct Item* item = malloc(sizeof(struct Item));
 
@@ -12,21 +12,21 @@ struct Item* ItemCreate(unsigned char side, struct Position position, struct Ite
     
     item->type = type;
     item->hasCollide = FALSE;
-    item->side = side;
     item->position = position;
-    item->hitbox = HitboxCreate(side, side, position.x, position.y);
+    item->hitbox = HitboxCreate(20, 20, position.x, position.y);
     item->next = next;
+    item->sprite = sprite;
 
     return item;
 }
-void CheckCollisionA(struct Item* item, struct Player* player)
+void CheckCollisionItem(struct Item* item, struct Player* player)
 {
     if(HitboxCheck(player->hitbox, item->hitbox))
     {
         if(item->type == HEALTH)
             player->health++;
 
-        if(item->type == 1)
+        if(item->type == DOUBLE_JUMP)
             player->canDoubleJump++;
 
         
@@ -35,8 +35,6 @@ void CheckCollisionA(struct Item* item, struct Player* player)
 }
 void ItemUpdate(struct Item* item, struct Player* player)
 {
-    int size = item->side/2;
-
     item->position.x = item->position.worldX - player->viewport->offsetX;
     item->position.y = item->position.worldY - player->viewport->offsetY;
     /*Updating our hitbox based on the position of the word*/
@@ -44,8 +42,7 @@ void ItemUpdate(struct Item* item, struct Player* player)
     item->hitbox->y = item->position.worldY;
 
     HitboxDraw(item->hitbox, player);
-    al_draw_filled_rectangle(item->position.x - size, item->position.y - size,
-        item->position.x + size, item->position.y + size, al_map_rgb(0, 255, 0));
+    al_draw_bitmap(item->sprite, item->position.x - 25, item->position.y - 25, 0);
 
-    CheckCollisionA(item, player);
+    CheckCollisionItem(item, player);
 }

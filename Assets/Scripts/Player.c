@@ -260,16 +260,33 @@ void PlayerDraw(struct Player* player)
 
     if(player->state == JUMPING || player->state == DOUBLE_JUMP)
     {
-        if(player->velocityY < 0)
+        if(player->control->fire)
         {
-            al_draw_scaled_bitmap(player->spriteWalking,
-                      9*FRAME_SIZE, 0, FRAME_SIZE, FRAME_SIZE, posX, posY, 100, 100, 1 ^ player->face);
+            if(player->velocityY < 0)
+            {
+                al_draw_scaled_bitmap(player->spriteWalking,
+                          13*FRAME_SIZE, 0, FRAME_SIZE, FRAME_SIZE, posX, posY, 100, 100, 1 ^ player->face);
+            }
+            else
+            {
+                al_draw_scaled_bitmap(player->spriteWalking,
+                          14*FRAME_SIZE, 0, FRAME_SIZE, FRAME_SIZE, posX, posY, 100, 100, 1 ^ player->face);
+
+            }
         }
         else
         {
-            al_draw_scaled_bitmap(player->spriteWalking,
-                      10*FRAME_SIZE, 0, FRAME_SIZE, FRAME_SIZE, posX, posY, 100, 100, 1 ^ player->face);
+            if(player->velocityY < 0)
+            {
+                al_draw_scaled_bitmap(player->spriteWalking,
+                          9*FRAME_SIZE, 0, FRAME_SIZE, FRAME_SIZE, posX, posY, 100, 100, 1 ^ player->face);
+            }
+            else
+            {
+                al_draw_scaled_bitmap(player->spriteWalking,
+                          10*FRAME_SIZE, 0, FRAME_SIZE, FRAME_SIZE, posX, posY, 100, 100, 1 ^ player->face);
 
+            }
         }
     }
     if(player->state == CROUCHED)
@@ -321,7 +338,7 @@ void PlayerUpdate(struct Player* player)
     
     PlayerUpdateState(player, newState);
 
-    if(player->control->fire && player->pistol->timer == 0 && player->state != JUMPING && player->state != DOUBLE_JUMP)
+    if(player->control->fire && player->pistol->timer == 0)
     {
         PlayerShot(player);
         player->pistol->timer = player->pistol->cooldown;

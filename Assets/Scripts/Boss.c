@@ -5,6 +5,8 @@
 
 struct Power* PowerCreate(int side, struct Position position)
 {
+    ALLEGRO_BITMAP *ray = al_load_bitmap("Assets/Sprites/rayBoss.png");
+    ALLEGRO_BITMAP *light = al_load_bitmap("Assets/Sprites/lightBoss.png");
     struct Power* power =  malloc(sizeof(struct Power));
 
     if(power == NULL)
@@ -16,6 +18,8 @@ struct Power* PowerCreate(int side, struct Position position)
     power->timer = POWER_COOLDOWN_BOSS;
     power->lineTimer = POWER_COOLDOWN_BOSS - 200;
     power->position = position;
+    power->ray = ray;
+    power->light = light;
     power->hitbox = HitboxCreate(10000, side, position.x, position.y);
 
     return power; 
@@ -23,16 +27,17 @@ struct Power* PowerCreate(int side, struct Position position)
 struct Boss* BossCreate(struct Position position)
 {
     struct Boss* boss;
+    ALLEGRO_BITMAP *bossBullet = al_load_bitmap("Assets/Sprites/bulletBoss.png");
 
     boss = malloc(sizeof(struct Boss));
 
     if(boss == NULL)
         exit(EXIT_FAILURE);
 
-    boss->health = 50;
+    boss->health = 10;
     boss->position = position;
     boss->hitbox = HitboxCreate(FRAME_VER_BOSS - 100, FRAME_HOR_BOSS- 100, position.x, position.y);
-    boss->pistol = PistolCreate(PISTOL_COOLDOWN_BOSS, NULL, 10);
+    boss->pistol = PistolCreate(PISTOL_COOLDOWN_BOSS, bossBullet, 60);
     boss->sprite = al_load_bitmap("Assets/Sprites/boss.png");
     boss->animationTime = 0;
     boss->currentFrame = 0;
@@ -155,11 +160,9 @@ void BossPowerUpdate(struct Boss* boss, struct Player* player)
 
     if(boss->power != NULL && boss->power->timer == 0)
     {
-        al_draw_line(boss->power->hitbox->x -player->viewport->offsetX,
-                     boss->power->hitbox->y + boss->power->hitbox->vert/2 -player->viewport->offsetY,
-                     boss->power->hitbox->x -player->viewport->offsetX,
-                     boss->power->hitbox->y - boss->power->hitbox->vert/2 -player->viewport->offsetY,
-                     al_map_rgb(0, 255, 0), 10);
+        al_draw_bitmap(boss->power->ray,
+                       boss->power->hitbox->x - 75 - player->viewport->offsetX,
+                       0, 0);
 
         boss->power->lineTimer--;
     }
@@ -183,7 +186,10 @@ void BossPowerUpdate(struct Boss* boss, struct Player* player)
 
         boss->power->timerToLive--;
 
-        HitboxDraw(boss->power->hitbox, player);
+        al_draw_bitmap(boss->power->light,
+                       boss->power->hitbox->x - 75 - player->viewport->offsetX,
+                       0, 0);
+        //HitboxDraw(boss->power->hitbox, player);
     }
 
 }
@@ -278,6 +284,8 @@ void BossUpdate(struct Boss* boss, struct Player* player)
 void BossDestroy(struct Boss* boss)
 {
     al_destroy_bitmap(boss->sprite);
+    al_destroy_bitmap(boss->power->ray);
+    al_destroy_bitmap(boss->power->light);
     PistolDestroy(boss->pistol);
     HitboxDestroy(boss->hitbox);
     free(boss->power);

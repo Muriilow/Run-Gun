@@ -53,21 +53,12 @@ void PlayerBulletUpdate(struct Player* player)
         index->hitbox->x = index->position.worldX;
         index->hitbox->y = index->position.worldY;
     
-        HitboxDraw(index->hitbox, player);
-        if(player->face == RIGHT)
-        {
-            al_draw_bitmap(player->pistol->sprite,
-                           index->position.worldX - 20 - player->viewport->offsetX,
-                           index->position.worldY - 20 - player->viewport->offsetY,
-                           0);
-        }
-        else
-        {
-            al_draw_bitmap(player->pistol->sprite,
-                           index->position.worldX - 20 - player->viewport->offsetX,
-                           index->position.worldY - 20 - player->viewport->offsetY,
-                           ALLEGRO_FLIP_HORIZONTAL);
-        }
+        //HitboxDraw(index->hitbox, player);
+        al_draw_bitmap(player->pistol->sprite,
+                       index->position.worldX - 20 - player->viewport->offsetX,
+                       index->position.worldY - 20 - player->viewport->offsetY,
+                       0);
+
         if(index->position.x > player->viewport->width || index->timerToLive == 0)
         {
             if(previous)
@@ -105,8 +96,11 @@ void BossBulletUpdate(struct Boss* boss, struct Player* player)
         index->hitbox->x = index->position.worldX;
         index->hitbox->y = index->position.worldY;
         
-        al_draw_filled_circle(index->position.worldX - player->viewport->offsetX, index->position.worldY -
-                              player->viewport->offsetY, 2, al_map_rgb(255, 0, 0));
+        HitboxDraw(index->hitbox, player);
+        al_draw_scaled_bitmap(boss->pistol->sprite, 0, 0, 150, 150,
+                       index->position.worldX - 50 - player->viewport->offsetX,
+                       index->position.worldY - 50 - player->viewport->offsetY,
+                       100, 100, 0);
 
         if(index->position.x > player->viewport->width || index->timerToLive == 0)
         {

@@ -17,6 +17,8 @@
 #define GREY al_map_rgb(164, 164, 164)
 #define BLACK al_map_rgb(64, 64, 64)
 #define WHITE al_map_rgb(204, 204, 204)
+#define RED al_map_rgb(153, 19, 19)
+#define GREEN al_map_rgb(89, 116, 32)
 
 void InputControl(ALLEGRO_EVENT event, struct Player* player)
 {
@@ -124,6 +126,8 @@ int main()
     //Creating a screen with the correct display size
     ALLEGRO_DISPLAY* display = al_create_display(SCREEN_W, SCREEN_H);
     ALLEGRO_BITMAP *background = al_load_bitmap("Assets/Sprites/background.png");
+    ALLEGRO_BITMAP *healthPW = al_load_bitmap("Assets/Sprites/healthPw.png");
+    ALLEGRO_BITMAP *doubleJumpPW = al_load_bitmap("Assets/Sprites/doubleJumpPw.png");
     ALLEGRO_BITMAP *menu = al_load_bitmap("Assets/Sprites/menu.png");
     ALLEGRO_BITMAP *playerMove = al_load_bitmap("Assets/Sprites/playerMove.png");
     ALLEGRO_BITMAP *playerBullet = al_load_bitmap("Assets/Sprites/bulletPlayer.png");
@@ -160,7 +164,7 @@ int main()
     CreateNormalEnemy(manager, posEnemy3, enemySprite, enemyBullet);
 
     struct Position posItem = {501, SCREEN_W/2, 501, SCREEN_W/2};
-    CreateLifeItem(manager, 10, posItem, 1);
+    CreateItem(manager, posItem, 1, doubleJumpPW);
 
 
     int xAxisBack = 0;
@@ -197,13 +201,28 @@ int main()
                 running = MenuControl(event, &mode, &option);
             else if(mode == PAUSE)
                 ignoreKeyboard = PauseControl(event, &mode, &option);
+            else if(mode == GAME_OVER || mode == GAME_WIN)
+            {
+                if(event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+                    running = FALSE;
+            }
+
         }
         else if(event.type == ALLEGRO_EVENT_TIMER)
         {
             if(mode == GAME)
             {
                 if(player->health <= 0)
-                    break;
+                {
+                    mode = GAME_OVER;
+                    option = PLAY;
+                    continue;
+                }
+                else if(boss->health <= 0)
+                {
+                    mode = GAME_WIN;
+                    continue;
+                }
             
                 xAxis--; 
                 xAxisBack = xAxis % -imgW;
@@ -246,6 +265,18 @@ int main()
                 else
                     al_draw_text(font, BLACK, SCREEN_W/2, 350, ALLEGRO_ALIGN_CENTER, "Menu");
             }
+            else if(mode == GAME_OVER)
+            {
+                al_clear_to_color(WHITE);
+                al_draw_text(font, RED, SCREEN_W/2, 200, ALLEGRO_ALIGN_CENTER, "GAME OVER!");
+                al_draw_text(font, BLACK, SCREEN_W/2, 300, ALLEGRO_ALIGN_CENTER, "Press ESC to quit");
+            }
+            else if(mode == GAME_WIN)
+            {
+                al_clear_to_color(WHITE);
+                al_draw_text(font, GREEN, SCREEN_W/2, 200, ALLEGRO_ALIGN_CENTER, "VICTORY!");
+                al_draw_text(font, BLACK, SCREEN_W/2, 300, ALLEGRO_ALIGN_CENTER, "Press ESC to quit");
+            }
 
             al_flip_display();
         }
@@ -258,6 +289,8 @@ int main()
     al_destroy_bitmap(background);
     al_destroy_bitmap(menu);
     al_destroy_bitmap(heart);
+    al_destroy_bitmap(healthPW);
+    al_destroy_bitmap(doubleJumpPW);
     al_destroy_bitmap(ground);
     al_destroy_bitmap(playerMove);
     al_destroy_bitmap(playerBullet);
@@ -269,5 +302,6 @@ int main()
     al_destroy_event_queue(queue);
 
     PlayerDestroy(player);
+    BossDestroy(boss);
     return 0;
 }

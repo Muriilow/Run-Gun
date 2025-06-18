@@ -13,15 +13,15 @@
 struct Player;
 struct Item 
 {
+    ALLEGRO_BITMAP* sprite;
     unsigned char type;
     unsigned char hasCollide;
-    unsigned char side;
     struct Hitbox* hitbox;
     struct Position position;
     struct Item* next;
 };
 
-struct Item* ItemCreate(unsigned char side, struct Position position, struct Item* next, unsigned char type);
+struct Item* ItemCreate(struct Position position, struct Item* next, unsigned char type, ALLEGRO_BITMAP* sprite);
 
 void ItemUpdate(struct Item* item, struct Player* player);
 #endif
