@@ -96,7 +96,7 @@ void BossBulletUpdate(struct Boss* boss, struct Player* player)
         index->hitbox->x = index->position.worldX;
         index->hitbox->y = index->position.worldY;
         
-        HitboxDraw(index->hitbox, player);
+        //HitboxDraw(index->hitbox, player);
         al_draw_scaled_bitmap(boss->pistol->sprite, 0, 0, 150, 150,
                        index->position.worldX - 50 - player->viewport->offsetX,
                        index->position.worldY - 50 - player->viewport->offsetY,
@@ -140,7 +140,7 @@ void EnemyBulletUpdate(struct NormalEnemy* enemy, struct Player* player)
         index->hitbox->x = index->position.worldX;
         index->hitbox->y = index->position.worldY;
        
-        HitboxDraw(index->hitbox, player);
+        //HitboxDraw(index->hitbox, player);
         al_draw_bitmap(enemy->pistol->sprite,
                        index->position.worldX - 12 - player->viewport->offsetX,
                        index->position.worldY - 12 - player->viewport->offsetY,

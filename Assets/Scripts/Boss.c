@@ -34,7 +34,7 @@ struct Boss* BossCreate(struct Position position)
     if(boss == NULL)
         exit(EXIT_FAILURE);
 
-    boss->health = 10;
+    boss->health = 50;
     boss->position = position;
     boss->hitbox = HitboxCreate(FRAME_VER_BOSS - 100, FRAME_HOR_BOSS- 100, position.x, position.y);
     boss->pistol = PistolCreate(PISTOL_COOLDOWN_BOSS, bossBullet, 60);
@@ -42,6 +42,8 @@ struct Boss* BossCreate(struct Position position)
     boss->animationTime = 0;
     boss->currentFrame = 0;
     boss->moveTimer = 0;
+    boss->canFall = TRUE;
+    boss->fallHealth = 36;
     boss->isAttacking = FALSE;
     boss->velocityX = 0;
     boss->velocityY = 0;
@@ -207,12 +209,14 @@ void BossMove(struct Boss* boss, struct Player* player)
 
         boss->moveTimer = 0;
     }
-    if(boss->health == 36 || boss->health == 24 || boss->health == 12)
+    if(boss->health == boss->fallHealth)
     {
-        boss->velocityY = 1.2;
+        if(boss->canFall)
+            boss->velocityY = 4;
+        boss->canFall = FALSE;
     }
 }
-void BossDraw(struct Boss* boss, struct Player* player)
+void BossDraw(struct Boss* boss)
 {
     if(boss->power->isActive)
     {
@@ -253,18 +257,17 @@ void BossUpdate(struct Boss* boss, struct Player* player)
         boss->velocityX += 0.12;
 
     if(boss->velocityY)
-        boss->velocityY -= 0.2;
+        boss->velocityY -= 0.12;
     if(boss->velocityY < 0)
+    {
+        boss->fallHealth -= 12;
+        boss->canFall = TRUE;
         boss->velocityY = 0;
+    }
 
     if(boss->pistol != NULL && boss->pistol->timer)
         boss->pistol->timer--;
     
-
-    /* If boss died */
-    //if(boss->health == 0)
-    //    exit(EXIT_SUCCESS);
-
     /*Updating our screen x and y positions*/
     boss->position.x = boss->position.worldX - player->viewport->offsetX;
     boss->position.y = boss->position.worldY - player->viewport->offsetY;
@@ -278,7 +281,7 @@ void BossUpdate(struct Boss* boss, struct Player* player)
     BossBulletUpdate(boss, player);
     BossPowerUpdate(boss, player);
     BossMove(boss, player);
-    BossDraw(boss, player);
+    BossDraw(boss);
 }
 
 void BossDestroy(struct Boss* boss)

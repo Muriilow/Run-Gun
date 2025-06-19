@@ -17,20 +17,29 @@
 #include "Player.h"
 #include "Utils.h"
 
+#define ENEMY_WALK_TIMER 400
+enum EnemyState
+{
+    WALKING,
+    SHOOTING,
+    NONE
+};
 struct NormalEnemy
 {
     ALLEGRO_BITMAP* sprite;
     ALLEGRO_BITMAP* spriteBullet;
     unsigned char animationTime;
     unsigned char currentFrame; 
+    unsigned short walkTimer; 
     unsigned char isFocused;
     unsigned char health;
-    unsigned char side;
+    unsigned char face;
     struct Vector2 velocity;
     struct Hitbox* hitbox;
     struct Position position;
     struct Pistol* pistol;
     struct NormalEnemy* next;
+    enum EnemyState state;
 };
 
 struct NormalEnemy* NormalEnemyCreate(unsigned char vert, unsigned char hor, struct Position position, struct NormalEnemy* next, ALLEGRO_BITMAP* sprite, ALLEGRO_BITMAP* bullet);

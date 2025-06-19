@@ -104,7 +104,7 @@ int main()
     al_init_image_addon();
     al_init_primitives_addon();
     al_install_keyboard();
-    al_set_new_display_flags(ALLEGRO_FULLSCREEN | ALLEGRO_OPENGL);
+    al_set_new_display_flags(ALLEGRO_OPENGL);
  
 
     //Initializing variables 
@@ -147,12 +147,13 @@ int main()
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
-    
+   
+    /*Initializing the game */
     struct Viewport viewport = {0, 0, 0, 0, SCREEN_W, SCREEN_H};
     struct Position pos = {301, 100, 301, 100};
     player = PlayerCreate(100, pos, &viewport, playerMove, playerBullet);
 
-    struct Position posBoss = {3001, 200, 3001, 200};
+    struct Position posBoss = {5001, 200, 5001, 200};
     struct Boss* boss = BossCreate(posBoss);  
     manager = GameManagerCreate(player, boss);
 
@@ -162,10 +163,24 @@ int main()
     CreateNormalEnemy(manager, posEnemy2, enemySprite, enemyBullet);
     struct Position posEnemy3 = {2001, SCREEN_H - 125, 2001, SCREEN_H - 125};
     CreateNormalEnemy(manager, posEnemy3, enemySprite, enemyBullet);
+    struct Position posEnemy4 = {2401, SCREEN_H - 125, 2401, SCREEN_H - 125};
+    CreateNormalEnemy(manager, posEnemy4, enemySprite, enemyBullet);
+    struct Position posEnemy5 = {2601, SCREEN_H - 125, 2601, SCREEN_H - 125};
+    CreateNormalEnemy(manager, posEnemy5, enemySprite, enemyBullet);
+    struct Position posEnemy6 = {3001, SCREEN_H - 125, 3001, SCREEN_H - 125};
+    CreateNormalEnemy(manager, posEnemy6, enemySprite, enemyBullet);
 
-    struct Position posItem = {501, SCREEN_W/2, 501, SCREEN_W/2};
-    CreateItem(manager, posItem, 1, doubleJumpPW);
+    struct Position posItem1 = {501, SCREEN_H - 125, 501, SCREEN_H - 125};
+    CreateItem(manager, posItem1, 0, healthPW);
 
+    struct Position posItem2 = {1001, SCREEN_H - 125, 1001, SCREEN_H - 125};
+    CreateItem(manager, posItem2, 0, healthPW);
+
+    struct Position posItem3 = {2001, SCREEN_H - 125, 2001, SCREEN_H - 125};
+    CreateItem(manager, posItem3, 1, doubleJumpPW);
+
+    struct Position posItem4 = {3001, 400, 3001, 400};
+    CreateItem(manager, posItem4, 0, healthPW);
 
     int xAxisBack = 0;
     int xAxisPlayer = 0;

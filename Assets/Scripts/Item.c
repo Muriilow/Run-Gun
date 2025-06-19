@@ -41,7 +41,7 @@ void ItemUpdate(struct Item* item, struct Player* player)
     item->hitbox->x = item->position.worldX;
     item->hitbox->y = item->position.worldY;
 
-    HitboxDraw(item->hitbox, player);
+    //HitboxDraw(item->hitbox, player);
     al_draw_bitmap(item->sprite, item->position.x - 25, item->position.y - 25, 0);
 
     CheckCollisionItem(item, player);

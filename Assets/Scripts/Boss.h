@@ -41,6 +41,8 @@ struct Boss
     unsigned char currentFrame;
     unsigned int moveTimer;
     unsigned char health;
+    unsigned char fallHealth;
+    unsigned char canFall;
     unsigned char isAttacking;
     struct Hitbox* hitbox;
     struct Position position;

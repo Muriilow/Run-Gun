@@ -1,6 +1,10 @@
 #ifndef __UTILS__
 #define __UTILS__
 
+#define LEFT 0
+#define RIGHT 1
+#define UP 2
+#define DOWN 3
 #define TRUE 1
 #define FALSE 0
 

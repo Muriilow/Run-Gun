@@ -79,7 +79,7 @@ void EventGroundedHandler(struct Player* player)
     if(player->control->down == FALSE)
         EnterIdleHandler(player);
 }
-void EventJumpHandler(struct Player* player, enum State state)
+void EventJumpHandler(struct Player* player)
 {
     if(player->isOnGround == TRUE)
     {
@@ -214,7 +214,7 @@ void PlayerUpdateState(struct Player* player, enum State newState)
         EventRunHandler(player, newState);
 
     if(player->state == JUMPING)
-        EventJumpHandler(player, newState);
+        EventJumpHandler(player);
 
     if(player->state == DOUBLE_JUMP)
         EventDoubleJumpHandler(player);
@@ -305,7 +305,6 @@ void PlayerDraw(struct Player* player)
 }
 void PlayerUpdate(struct Player* player)
 {
-    unsigned char size = player->side/2;
     enum State newState = IDLE;
    
     player->position.y += player->velocityY;

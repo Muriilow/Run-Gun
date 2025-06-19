@@ -22,7 +22,10 @@ struct NormalEnemy* NormalEnemyCreate(unsigned char vert, unsigned char hor, str
     enemy->isFocused = FALSE;
     enemy->currentFrame = 1;
     enemy->animationTime = 0;
+    enemy->walkTimer = 0;
     enemy->velocity = vec2;
+    enemy->state = NONE;
+    enemy->face = -1; 
     return enemy;
 }
 void NormalEnemyShot(struct NormalEnemy* enemy, struct Player* player)
@@ -43,16 +46,34 @@ void CheckDistance(struct NormalEnemy* enemy, struct Player* player)
     short distanceX = enemy->position.worldX - player->position.worldX;
     short distanceY = enemy->position.worldY - player->position.worldY;
     float distance = sqrt(distanceX*distanceX + distanceY*distanceY);
-            
+    
+    if(distance < 650 && enemy->walkTimer > ENEMY_WALK_TIMER)
+    {
+        enemy->walkTimer = 0;
+
+        if(distanceX > 0)
+        {
+            enemy->face = LEFT;
+            enemy->velocity.x = -10;
+        }
+        else
+        {
+            enemy->face = RIGHT;
+            enemy->velocity.x = 10;
+        }
+    }
+
     if(distance < 650 && enemy->pistol->timer == 0)
     {
-        enemy->velocity.x = -2;
+        enemy->state = WALKING;
         enemy->isFocused = TRUE;
         enemy->pistol->timer = enemy->pistol->cooldown;
         NormalEnemyShot(enemy, player);
     }
-    else if(distance >= 700)
+    else if(distance >= 800)
     {
+        enemy->face = -1;
+        enemy->state = NONE;
         enemy->isFocused = FALSE;
     }
 }
@@ -119,16 +140,33 @@ void CheckCollision(struct NormalEnemy* enemy, struct Player* player)
         }
     }
 }
-void EnemyDraw(struct NormalEnemy* enemy, struct Player* player)
+void EnemyDraw(struct NormalEnemy* enemy)
 {
-    if(enemy->isFocused == TRUE)
+    if(enemy->state == WALKING)
     {
-        al_draw_bitmap_region(enemy->sprite,
-            0, 0, FRAME_HOR_EN, FRAME_VERT_EN, 
-            enemy->position.x - 75, enemy->position.y - 125,
-            0);
+        if(enemy->face == RIGHT)
+        {
+            al_draw_bitmap_region(enemy->sprite,
+                4*FRAME_HOR_EN, 0, FRAME_HOR_EN, FRAME_VERT_EN, 
+                enemy->position.x - 75, enemy->position.y - 125,
+                0);
+        }
+        else if(enemy->face == LEFT)
+        {
+            al_draw_bitmap_region(enemy->sprite,
+                1*FRAME_HOR_EN, 0, FRAME_HOR_EN, FRAME_VERT_EN, 
+                enemy->position.x - 75, enemy->position.y - 125,
+                0);
+        }
+        else
+        {
+            al_draw_bitmap_region(enemy->sprite,
+                0*FRAME_HOR_EN, 0, FRAME_HOR_EN, FRAME_VERT_EN, 
+                enemy->position.x - 75, enemy->position.y - 125,
+                0);
+        }
     }
-    else
+    if(enemy->state == NONE)
     { 
         enemy->animationTime++;
         if(enemy->animationTime >= ENEMY_FRAME_DELAY)
@@ -151,6 +189,8 @@ void NormalEnemyUpdate(struct NormalEnemy* enemy, struct Player* player)
     if(enemy == NULL || player == NULL)
         return;
 
+    enemy->walkTimer++;
+
     if(enemy->pistol->timer)
         enemy->pistol->timer--;
     
@@ -161,11 +201,21 @@ void NormalEnemyUpdate(struct NormalEnemy* enemy, struct Player* player)
         enemy = NULL;
         return;
     }
-    if(enemy->velocity.x)
+    if(enemy->face == LEFT)
+    {
         enemy->velocity.x += 0.2;
-
-    if(enemy->velocity.x > 0)
+        if(enemy->velocity.x > 0)
+            enemy->velocity.x = 0;
+    }
+    if(enemy->face == RIGHT)
+    {
+        enemy->velocity.x -= 0.2;
+        if(enemy->velocity.x < 0)
+            enemy->velocity.x = 0;
+    }
+    if(enemy->state == NONE)
         enemy->velocity.x = 0;
+
     enemy->position.worldX += enemy->velocity.x;
     enemy->position.worldY += enemy->velocity.y;
 
@@ -176,13 +226,13 @@ void NormalEnemyUpdate(struct NormalEnemy* enemy, struct Player* player)
     enemy->hitbox->x = enemy->position.worldX;
     enemy->hitbox->y = enemy->position.worldY;
 
-    HitboxDraw(enemy->hitbox, player);
+    //HitboxDraw(enemy->hitbox, player);
 
 
     CheckCollision(enemy, player);
     CheckDistance(enemy, player);
     EnemyBulletUpdate(enemy, player);
-    EnemyDraw(enemy, player);
+    EnemyDraw(enemy);
 }
 
 void NormalEnemyDestroy(struct NormalEnemy* enemy)

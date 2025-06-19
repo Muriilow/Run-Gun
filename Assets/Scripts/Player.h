@@ -13,10 +13,6 @@
 #include "Utils.h"
 
 /* Defines to simplify the code */
-#define LEFT 0
-#define RIGHT 1
-#define UP 2
-#define DOWN 3
 #define FIRE 4
 #define JUMP 5
 #define GRAVITY 0.8
@@ -101,7 +97,7 @@ void EnterGroundedHandler(struct Player* player);
 
 void EventRunHandler(struct Player* player, enum State state);
 void EventIdleHandler(struct Player* player, enum State state);
-void EventJumpHandler(struct Player* player, enum State state);
+void EventJumpHandler(struct Player* player);
 void EventDoubleJumpHandler(struct Player* player);
 void EventGroundedHandler(struct Player* player);
 
